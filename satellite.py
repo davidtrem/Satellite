@@ -89,6 +89,9 @@ class MainWin(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         self.setWindowTitle("Satellite")
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap('satellite.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(icon)
         self.resize(600, 400)
         self.device_tab = DevicesTab(self)
         self.setCentralWidget(self.device_tab)
