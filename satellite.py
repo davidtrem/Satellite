@@ -26,6 +26,7 @@
 
 
 import sys
+import os.path
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 
@@ -108,6 +109,7 @@ class MainWin(QtGui.QMainWindow):
 
 
     def add_new_experiment(self, experiment, file_name):
+        data_name = os.path.splitext(os.path.basename(str(file_name)))[0]
         device_data_tab = DeviceDataTab()
         device_data_tab.addTab(TlpFigCanvas(experiment.raw_data.tlp_curve,
                                             experiment.exp_name),
@@ -116,7 +118,7 @@ class MainWin(QtGui.QMainWindow):
                                                experiment.exp_name),
                                "Pulses")
         self.device_tab.addTab(device_data_tab,
-                               file_name)
+                               data_name)
 
 
 def main():
