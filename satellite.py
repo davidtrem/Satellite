@@ -76,7 +76,7 @@ class ImportLoader(QtCore.QThread):
 
     def __call__(self, file_name):
         self.file_name = QtGui.QFileDialog.getOpenFileName(
-            None, "Open %s data file"%self.importer_name, "../../example_data/")
+            None, "Open %s data file"%self.importer_name)
         if self.file_name != "":
             self.start()
 
@@ -90,7 +90,8 @@ class MainWin(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap('satellite.png'), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap('satellite.png'),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.resize(600, 400)
         self.device_tab = DevicesTab(self)
