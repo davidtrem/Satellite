@@ -55,7 +55,7 @@ class DevicesTab(QtGui.QTabWidget):
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
         self.setMovable(True)
-        self.setTabsClosable(False)
+        self.setTabsClosable(True)
         self.setUsesScrollButtons(True)
 
 
@@ -73,16 +73,19 @@ class ImportLoader(QtCore.QThread):
     def __init__(self, importer_name, parent=None):
         QtCore.QThread.__init__(self, parent)
         self.importer_name = importer_name
+        self.importer = plug_dict[self.importer_name]()
+        self.file_ext = self.importer.file_ext
         self.file_name = ""
 
     def __call__(self, file_name):
         self.file_name = QtGui.QFileDialog.getOpenFileName(
-            None, "Open %s data file"%self.importer_name)
+            None, "Open %s data file"%self.importer_name,
+            filter='%s (%s)'%(self.importer_name, self.file_ext))
         if self.file_name != "":
             self.start()
 
     def run(self):
-        experiment = plug_dict[self.importer_name]().load(str(self.file_name))
+        experiment = self.importer.load(str(self.file_name))
         self.new_data_ready.emit(experiment, self.file_name)
 
 
