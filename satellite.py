@@ -79,8 +79,8 @@ class ImportLoader(QtCore.QThread):
 
     def __call__(self, file_name):
         self.file_name = QtGui.QFileDialog.getOpenFileName(
-            None, "Open %s data file"%self.importer_name,
-            filter='%s (%s)'%(self.importer_name, self.file_ext))
+            None, "Open %s data file"%self.importer_name, '',
+            '%s (%s)'%(self.importer_name, self.file_ext))
         if self.file_name != "":
             self.start()
 
