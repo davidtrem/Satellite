@@ -1,0 +1,10 @@
+syntax: glob
+*.py[co]
+*~
+.DS_Store
+.spyderproject
+dist/
+build/
+MANIFEST
+doc/api_doc
+doc/doc-sphinx/_build/*
