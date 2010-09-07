@@ -38,6 +38,7 @@ from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import (TLPFigure,
                                                  PulsesFigure)
                                                  
+                                                 
 class MatplotlibFig(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
@@ -48,14 +49,17 @@ class MatplotlibFig(QtGui.QWidget):
         fig_vbox.addWidget(fig_canvas)
         fig_vbox.addWidget(fig_toolbar)
         self.setLayout(fig_vbox)
-        self.figure = figure   
+        self.figure = figure
+        self.fig_canvas = fig_canvas
                                             
 
 class TlpFig(MatplotlibFig):
-    def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
+    def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):           
         MatplotlibFig.__init__(self, parent)
-        TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
-        
+        self.leak_on_y_axis = False
+        TLPFigure(self.figure, tlp_curve_data, title, leakage_evol,
+                  self.leak_on_y_axis)
+
  
 class PulsesFig(MatplotlibFig):
     def __init__(self, pulses, title, parent=None):
