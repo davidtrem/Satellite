@@ -85,7 +85,7 @@ class ImportLoader(QtCore.QThread):
             self.start()
 
     def run(self):
-        experiment = self.importer.load(str(self.file_name))
+        experiment = self.importer.load(unicode(self.file_name))
         self.new_data_ready.emit(experiment, self.file_name)
 
 
@@ -112,7 +112,7 @@ class MainWin(QtGui.QMainWindow):
 
 
     def add_new_experiment(self, experiment, file_name):
-        data_name = os.path.splitext(os.path.basename(str(file_name)))[0]
+        data_name = os.path.splitext(os.path.basename(unicode(file_name)))[0]
         device_data_tab = DeviceDataTab()
         device_data_tab.addTab(TlpFigCanvas(experiment.raw_data.tlp_curve,
                                             experiment.exp_name),
