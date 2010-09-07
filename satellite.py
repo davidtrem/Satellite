@@ -38,10 +38,10 @@ from thunderstorm.lightning.simple_plots import (TLPFigure,
                                                  PulsesFigure)
 
 class TlpFigCanvas(FigureCanvasQTAgg):
-    def __init__(self, tlp_curve_data, title):
+    def __init__(self, tlp_curve_data, title, leakage_evol=None):
         figure = Figure()
         FigureCanvasQTAgg.__init__(self, figure)
-        TLPFigure(figure, tlp_curve_data, title)
+        TLPFigure(figure, tlp_curve_data, title, leakage_evol)
 
 
 class PulsesFigCanvas(FigureCanvasQTAgg):
@@ -115,7 +115,8 @@ class MainWin(QtGui.QMainWindow):
         data_name = os.path.splitext(os.path.basename(unicode(file_name)))[0]
         device_data_tab = DeviceDataTab()
         device_data_tab.addTab(TlpFigCanvas(experiment.raw_data.tlp_curve,
-                                            experiment.exp_name),
+                                            experiment.exp_name,
+                                            experiment.raw_data.leak_evol),
                                "TLP curve")
         device_data_tab.addTab(PulsesFigCanvas(experiment.raw_data.pulses,
                                                experiment.exp_name),
