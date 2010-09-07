@@ -32,30 +32,42 @@ from PyQt4 import QtGui
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import (TLPFigure,
                                                  PulsesFigure)
-
-class TlpFigCanvas(FigureCanvasQTAgg):
-    def __init__(self, tlp_curve_data, title, leakage_evol=None):
+                                                 
+class MatplotlibFig(QtGui.QWidget):
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self)
         figure = Figure()
-        FigureCanvasQTAgg.__init__(self, figure)
-        TLPFigure(figure, tlp_curve_data, title, leakage_evol)
+        fig_canvas = FigureCanvasQTAgg(figure)
+        fig_toolbar = NavigationToolbar(fig_canvas, self)
+        fig_vbox = QtGui.QVBoxLayout()
+        fig_vbox.addWidget(fig_canvas)
+        fig_vbox.addWidget(fig_toolbar)
+        self.setLayout(fig_vbox)
+        self.figure = figure   
+                                            
 
-
-class PulsesFigCanvas(FigureCanvasQTAgg):
-    def __init__(self, pulses, title):
-        figure = Figure()
-        FigureCanvasQTAgg.__init__(self, figure)
-        PulsesFigure(figure, pulses, title)
-
+class TlpFig(MatplotlibFig):
+    def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
+        MatplotlibFig.__init__(self, parent)
+        TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
+        
+ 
+class PulsesFig(MatplotlibFig):
+    def __init__(self, pulses, title, parent=None):
+        MatplotlibFig.__init__(self, parent)
+        PulsesFigure(self.figure, pulses, title)       
+        
 
 class DevicesTab(QtGui.QTabWidget):
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
         self.setMovable(True)
-        self.setTabsClosable(True)
+        self.setTabsClosable(False)
         self.setUsesScrollButtons(True)
 
 
@@ -97,7 +109,7 @@ class MainWin(QtGui.QMainWindow):
         icon.addPixmap(QtGui.QPixmap('satellite.png'),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
-        self.resize(600, 400)
+        self.resize(800, 600)
         self.device_tab = DevicesTab(self)
         self.setCentralWidget(self.device_tab)
 
@@ -114,11 +126,11 @@ class MainWin(QtGui.QMainWindow):
     def add_new_experiment(self, experiment, file_name):
         data_name = os.path.splitext(os.path.basename(unicode(file_name)))[0]
         device_data_tab = DeviceDataTab()
-        device_data_tab.addTab(TlpFigCanvas(experiment.raw_data.tlp_curve,
-                                            experiment.exp_name,
-                                            experiment.raw_data.leak_evol),
+        device_data_tab.addTab(TlpFig(experiment.raw_data.tlp_curve,
+                                      experiment.exp_name,
+                                      experiment.raw_data.leak_evol),
                                "TLP curve")
-        device_data_tab.addTab(PulsesFigCanvas(experiment.raw_data.pulses,
+        device_data_tab.addTab(PulsesFig(experiment.raw_data.pulses,
                                                experiment.exp_name),
                                "Pulses")
         self.device_tab.addTab(device_data_tab,
