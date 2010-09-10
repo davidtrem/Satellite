@@ -48,9 +48,12 @@ class MatplotlibFig(QtGui.QWidget):
         fig_vbox = QtGui.QVBoxLayout()
         fig_vbox.addWidget(fig_canvas)
         fig_vbox.addWidget(fig_toolbar)
+        fig_canvas.setParent(self)
+        fig_canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
+        fig_canvas.setFocus()
         self.setLayout(fig_vbox)
         self.figure = figure
-        self.fig_canvas = fig_canvas
+        self.fig_canvas = fig_canvas 
                                             
 
 class TlpFig(MatplotlibFig):
@@ -59,13 +62,12 @@ class TlpFig(MatplotlibFig):
         self.leak_on_y_axis = False
         TLPFigure(self.figure, tlp_curve_data, title, leakage_evol,
                   self.leak_on_y_axis)
-
  
 class PulsesFig(MatplotlibFig):
     def __init__(self, pulses, title, parent=None):
         MatplotlibFig.__init__(self, parent)
         PulsesFigure(self.figure, pulses, title)       
-        
+
 
 class DevicesTab(QtGui.QTabWidget):
     def __init__(self, parent=None):
