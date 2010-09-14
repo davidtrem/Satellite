@@ -37,9 +37,7 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as Naviga
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import (TLPFigure)
                                                  
-from thunderstorm.lightning.pulse_observer import TLPPickFigure
-from thunderstorm.lightning.pulse_observer import PulsesFigure
-                                                 
+from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
                                                  
 class MatplotlibFig(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -62,20 +60,11 @@ class TlpFig(MatplotlibFig):
         self.figure.canvas.setFocus()
         TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
  
-class PulsesFig(QtGui.QWidget):
+
+class PulsesPickFig(MatplotlibFig):
     def __init__(self, raw_data, title, parent=None):
-        QtGui.QWidget.__init__(self)
-        tlp_fig = MatplotlibFig(self)
-        pulses_fig = MatplotlibFig(self)
-        pulses_figure = PulsesFigure(pulses_fig.figure,
-                                     raw_data.pulses)
-        TLPPickFigure(tlp_fig.figure,
-                      raw_data.tlp_curve,
-                      pulses_figure)
-        fig_hbox = QtGui.QHBoxLayout()
-        fig_hbox.addWidget(tlp_fig)
-        fig_hbox.addWidget(pulses_fig)
-        self.setLayout(fig_hbox)
+        MatplotlibFig.__init__(self, parent)
+        TLPPulsePickFigure(self.figure, raw_data)
 
 
 class DevicesTab(QtGui.QTabWidget):
@@ -145,8 +134,8 @@ class MainWin(QtGui.QMainWindow):
                                       experiment.exp_name,
                                       experiment.raw_data.leak_evol),
                                "TLP curve")
-        device_data_tab.addTab(PulsesFig(experiment.raw_data,
-                                         experiment.exp_name),
+        device_data_tab.addTab(PulsesPickFig(experiment.raw_data,
+                                             experiment.exp_name),
                                "Pulses")
         self.device_tab.addTab(device_data_tab,
                                data_name)
