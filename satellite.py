@@ -54,17 +54,17 @@ class MatplotlibFig(QtGui.QWidget):
                                             
 
 class TlpFig(MatplotlibFig):
-    def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):           
+    def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
         MatplotlibFig.__init__(self, parent)
-        self.figure.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
+        self.figure.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.figure.canvas.setFocus()
-        TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
+        self.fig = TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
  
 
 class PulsesPickFig(MatplotlibFig):
     def __init__(self, raw_data, title, parent=None):
         MatplotlibFig.__init__(self, parent)
-        TLPPulsePickFigure(self.figure, raw_data)
+        self.fig = TLPPulsePickFigure(self.figure, raw_data)
 
 
 class DevicesTab(QtGui.QTabWidget):
