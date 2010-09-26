@@ -4,6 +4,8 @@ syntax: glob
 .DS_Store
 Thumbs.db
 .spyderproject
+.project
+.pydevproject
 dist/
 build/
 MANIFEST
