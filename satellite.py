@@ -29,6 +29,7 @@ import sys
 import os.path
 from PyQt4 import QtCore
 from PyQt4 import QtGui
+import qresource
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
@@ -36,9 +37,9 @@ from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as Naviga
 
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import (TLPFigure)
-                                                 
+
 from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
-                                                 
+
 class MatplotlibFig(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
@@ -51,7 +52,7 @@ class MatplotlibFig(QtGui.QWidget):
         fig_canvas.setParent(self)
         self.setLayout(fig_vbox)
         self.figure = figure
-                                            
+
 
 class TlpFig(MatplotlibFig):
     def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
@@ -59,7 +60,7 @@ class TlpFig(MatplotlibFig):
         self.figure.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
         self.figure.canvas.setFocus()
         self.fig = TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
- 
+
 
 class PulsesPickFig(MatplotlibFig):
     def __init__(self, raw_data, title, parent=None):
@@ -110,7 +111,7 @@ class MainWin(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self, parent)
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap('satellite.png'),
+        icon.addPixmap(QtGui.QPixmap(':/satellite.png'),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.resize(800, 600)
