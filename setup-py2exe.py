@@ -39,8 +39,7 @@ options  = {
                              'matplotlib.figure','pylab', 'numpy',
                              'matplotlib.numerix.fft',
                              'matplotlib.numerix.linear_algebra',
-                             'matplotlib.numerix.random_array',
-                             'matplotlib.backends.backend_tkagg'],
+                             'matplotlib.numerix.random_array'],
                'excludes': ['_gtkagg', '_tkagg', '_agg2', '_cairo',
                             '_cocoaagg', '_fltkagg', '_gtk', '_gtkcairo',
                             '_ssl','bsddb', 'curses',
@@ -64,8 +63,6 @@ matplotlibdata_files = matplotlib.get_py2exe_datafiles()
 del matplotlibdata_files[-1]
 
 data_files = ['Microsoft.VC90.CRT.manifest',
-              'msvcm90.dll',
-              'msvcp90.dll',
               'msvcr90.dll']
 
 data_files = data_files+matplotlibdata_files
@@ -78,7 +75,7 @@ setup(
                 'icon_resources': [(1, 'satellite.ico')]}],
     # use out build_installer class as extended py2exe build
     name = "Satellite",
-    version = "0.1",  # --- change this! ---
+    version = "0.?",  # --- change this! ---
     description = "",
     author = "Dimitri Linten",
     author_email = "dimitri.linten@gmail.com",
