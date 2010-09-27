@@ -7,7 +7,7 @@ Howto ocreate an executable for windows
 
 - Make sure an up to date version of thunderstorm library is
 in your path.
-- Copy the MSVCR90 DLL into satellite folder.
+- Copy the three MS*90 DLL into satellite folder.
 - Set properly the version number in the setup-py2exe.py file.
 - run "python setup-py2exe.py py2exe",
 - the exe is then located in the dist folder.
