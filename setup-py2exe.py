@@ -63,7 +63,7 @@ matplotlibdata_files = matplotlib.get_py2exe_datafiles()
 del matplotlibdata_files[-1]
 
 data_files = ['Microsoft.VC90.CRT.manifest',
-              'msvcr90.dll']
+              'msvcr90.dll, msvcm90.dll, msvcp90.dll']
 
 data_files = data_files+matplotlibdata_files
 
