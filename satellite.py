@@ -36,7 +36,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
 
 from thunderstorm.thunder.importers.tools import plug_dict
-from thunderstorm.lightning.simple_plots import (TLPFigure)
+from thunderstorm.lightning.simple_plots import TLPFigure
 
 from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
 
@@ -68,21 +68,12 @@ class PulsesPickFig(MatplotlibFig):
         self.fig = TLPPulsePickFigure(self.figure, raw_data)
 
 
-class DevicesTab(QtGui.QTabWidget):
+class ViewTab(QtGui.QTabWidget):
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
         self.setMovable(True)
         self.setTabsClosable(False)
-        self.setUsesScrollButtons(True)
-
-
-class DeviceDataTab(QtGui.QTabWidget):
-    def __init__(self, parent=None):
-        QtGui.QTabWidget.__init__(self, parent)
-        self.setMovable(False)
-        self.setTabsClosable(False)
         self.setUsesScrollButtons(False)
-        self.setTabPosition(QtGui.QTabWidget.West)
 
 
 class ImportLoader(QtCore.QThread):
@@ -115,8 +106,8 @@ class MainWin(QtGui.QMainWindow):
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.resize(800, 600)
-        self.device_tab = DevicesTab(self)
-        self.setCentralWidget(self.device_tab)
+        self.view_tab = ViewTab()
+        self.setCentralWidget(self.view_tab)
 
         file_menu = self.menuBar().addMenu("&File")
         import_menu = file_menu.addMenu("&Import")
@@ -130,16 +121,14 @@ class MainWin(QtGui.QMainWindow):
 
     def add_new_experiment(self, experiment, file_name):
         data_name = os.path.splitext(os.path.basename(unicode(file_name)))[0]
-        device_data_tab = DeviceDataTab()
-        device_data_tab.addTab(TlpFig(experiment.raw_data.tlp_curve,
-                                      experiment.exp_name,
-                                      experiment.raw_data.leak_evol),
-                               "TLP curve")
-        device_data_tab.addTab(PulsesPickFig(experiment.raw_data,
-                                             experiment.exp_name),
-                               "Pulses")
-        self.device_tab.addTab(device_data_tab,
-                               data_name)
+        view_tab = self.view_tab
+        view_tab.addTab(TlpFig(experiment.raw_data.tlp_curve,
+                               experiment.exp_name,
+                               experiment.raw_data.leak_evol),
+                        "TLP curve")
+        view_tab.addTab(PulsesPickFig(experiment.raw_data,
+                                      experiment.exp_name),
+                        "Pulses")
 
 
 def main():
