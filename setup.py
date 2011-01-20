@@ -11,5 +11,5 @@ setup(name = 'Satellite',
       license = 'MIT',
       platforms = ['any'],
       packages = ['satellite'],
-      scripts = ['satellite.py',],
+      scripts = ['run_satellite.py',],
       )

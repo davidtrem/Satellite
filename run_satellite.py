@@ -25,4 +25,6 @@
 #OTHER DEALINGS IN THE SOFTWARE.
 
 from satellite.core import main
-main()
+
+if __name__ == '__main__':
+    main()
