@@ -9,3 +9,6 @@ clean :
 	rm -f MANIFEST
 	rm -rf dist
 	rm -rf build
+
+install:
+	python setup.py install --home=~
