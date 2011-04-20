@@ -86,16 +86,17 @@ class ImportLoader(QtCore.QThread):
         self.file_name = ""
 
     def __call__(self, file_name):
-        self.file_name = QtGui.QFileDialog.getOpenFileName(
+        self.file_names = QtGui.QFileDialog.getOpenFileNames(
             None, "Open %s data file"%self.importer_name, '',
             '%s (%s)'%(self.importer_name, self.file_ext),
             options = QtGui.QFileDialog.DontUseNativeDialog)
-        if self.file_name != "":
+        if len(self.file_names) > 0:
             self.start()
 
     def run(self):
-        experiment = self.importer.load(unicode(self.file_name))
-        self.new_data_ready.emit(experiment, self.file_name)
+        for file_name in self.file_names:
+            experiment = self.importer.load(unicode(file_name))
+            self.new_data_ready.emit(experiment, file_name)
 
 
 class MainWin(QtGui.QMainWindow):
