@@ -29,11 +29,11 @@ import sys
 import os.path
 from PyQt4 import QtCore
 from PyQt4 import QtGui
-import qresource
 
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
-from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar
+from matplotlib.backends.backend_qt4agg import (
+    FigureCanvasQTAgg,
+    NavigationToolbar2QTAgg as NavigationToolbar)
 
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import TLPFigure
@@ -88,7 +88,8 @@ class ImportLoader(QtCore.QThread):
     def __call__(self, file_name):
         self.file_name = QtGui.QFileDialog.getOpenFileName(
             None, "Open %s data file"%self.importer_name, '',
-            '%s (%s)'%(self.importer_name, self.file_ext))
+            '%s (%s)'%(self.importer_name, self.file_ext),
+            options = QtGui.QFileDialog.DontUseNativeDialog)
         if self.file_name != "":
             self.start()
 
@@ -107,7 +108,6 @@ class MainWin(QtGui.QMainWindow):
         self.setWindowIcon(icon)
         self.resize(800, 600)
         self.view_tab = ViewTab()
-        self.setCentralWidget(self.view_tab)
 
         file_menu = self.menuBar().addMenu("&File")
         import_menu = file_menu.addMenu("&Import")
@@ -117,6 +117,19 @@ class MainWin(QtGui.QMainWindow):
             loader = ImportLoader(importer_name, self)
             load_file_action.triggered.connect(loader)
             loader.new_data_ready.connect(self.add_new_experiment)
+
+        #initialize core_storm and associated QListWidget
+        core_storm = None
+        core_storm_listwdgt = QtGui.QListWidget(self)
+        core_storm_listwdgt.setSelectionMode(
+            QtGui.QAbstractItemView.ExtendedSelection)
+        layout = QtGui.QHBoxLayout()
+        layout.addWidget(core_storm_listwdgt)
+        layout.addWidget(self.view_tab)
+        central_widget = QtGui.QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+        self.core_storm_listwdgt = core_storm_listwdgt
 
 
     def add_new_experiment(self, experiment, file_name):
@@ -129,6 +142,8 @@ class MainWin(QtGui.QMainWindow):
         view_tab.addTab(PulsesPickFig(experiment.raw_data,
                                       experiment.exp_name),
                         "Pulses")
+        item = QtGui.QListWidgetItem(data_name, self.core_storm_listwdgt)
+        item.setToolTip(data_name)
 
 
 def main():
