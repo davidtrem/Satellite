@@ -51,7 +51,7 @@ setup(
     options = options,
     # The lib directory contains everything except the executables
     # and the python dll.
-    app=["satellite.py"],
+    app=["run_satellite.py"],
     setup_requires=["py2app"],
     name = "Satellite",
     version = "0.1",  # --- change this! ---
