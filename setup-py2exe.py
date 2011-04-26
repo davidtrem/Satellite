@@ -63,7 +63,7 @@ matplotlibdata_files = matplotlib.get_py2exe_datafiles()
 del matplotlibdata_files[-1]
 
 data_files = ['Microsoft.VC90.CRT.manifest',
-              'msvcr90.dll, msvcm90.dll, msvcp90.dll']
+              'msvcr90.dll', 'msvcm90.dll', 'msvcp90.dll']
 
 data_files = data_files+matplotlibdata_files
 
@@ -71,14 +71,14 @@ setup(
     options = options,
     # The lib directory contains everything except the executables
     # and the python dll.
-    windows = [{'script' : 'satellite.py',
+    windows = [{'script' : 'run_satellite.py',
                 'icon_resources': [(1, 'satellite.ico')]}],
     # use out build_installer class as extended py2exe build
     name = "Satellite",
     version = "0.?",  # --- change this! ---
     description = "",
-    author = "Dimitri Linten",
-    author_email = "dimitri.linten@gmail.com",
+    author = "David Trémouilles, Dimitri Linten",
+    author_email = "david.trem@gmail.com, dimitri.linten@gmail.com",
     url = "http://code.google.com/p/esdanalysistools/",
     data_files = data_files
     )
