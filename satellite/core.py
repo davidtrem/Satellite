@@ -43,6 +43,8 @@ from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
 from thunderstorm.istormlib.storm import Storm
 from thunderstorm.istormlib.istorm_view import View
 
+import qresource
+
 
 class MatplotlibFig(QtGui.QWidget):
     def __init__(self, parent=None):
