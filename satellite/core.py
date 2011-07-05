@@ -27,8 +27,10 @@
 
 import sys
 import os.path
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from qt import QtCore
+from qt import QtGui
+from qt import QT_API, QT_API_PYSIDE
+
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -88,7 +90,7 @@ class ViewTab(QtGui.QTabWidget):
 
 
 class ImportLoader(QtCore.QThread):
-    new_data_ready = QtCore.pyqtSignal(object, str)
+    new_data_ready = QtCore.Signal(object, str)
     def __init__(self, importer_name, parent=None):
         QtCore.QThread.__init__(self, parent)
         self.importer_name = importer_name
@@ -96,7 +98,7 @@ class ImportLoader(QtCore.QThread):
         self.file_ext = self.importer.file_ext
         self.file_names = ""
 
-    def __call__(self, file_name):
+    def __call__(self):
         self.file_names = QtGui.QFileDialog.getOpenFileNames(
             None, "Open %s data file"%self.importer_name, '',
             '%s (%s)'%(self.importer_name, self.file_ext),
@@ -105,8 +107,10 @@ class ImportLoader(QtCore.QThread):
             self.start()
 
     def run(self):
+        if QT_API == QT_API_PYSIDE:
+            self.file_names = self.file_names[0]
         for file_name in self.file_names:
-            experiment = self.importer.load(unicode(file_name))
+            experiment = self.importer.load(file_name)
             self.new_data_ready.emit(experiment, file_name)
 
 
@@ -160,11 +164,11 @@ class MainWin(QtGui.QMainWindow):
     def list_menu(self, position):
         item = self.core_storm_listwdgt.itemAt(position)
         def show_pulse_pick():
-            experiment = self.experiment_dict[item]
+            experiment = self.experiment_dict[id(item)]
             self.ppfig = PulsesPickFig(experiment.raw_data, item.text())
             self.ppfig.show()
         def show_tlp():
-            experiment = self.experiment_dict[item]
+            experiment = self.experiment_dict[id(item)]
             self.tlpfig = TlpFig(experiment.raw_data.tlp_curve, item.text(),
                                  experiment.raw_data.leak_evol)
             self.tlpfig.show()
@@ -180,19 +184,19 @@ class MainWin(QtGui.QMainWindow):
 
 
     def add_new_experiment(self, experiment, file_name):
-        data_name = os.path.splitext(os.path.basename(unicode(file_name)))[0]
+        data_name = os.path.splitext(os.path.basename(file_name))[0]
         experiment.exp_name = data_name
         self.core_storm.append(View(experiment))
         item = QtGui.QListWidgetItem(experiment.exp_name,
                                      self.core_storm_listwdgt)
         item.setToolTip(data_name)
-        self.experiment_dict[item] = experiment
+        self.experiment_dict[id(item)] = experiment
 
     def core_storm_selection_change(self):
         items = self.core_storm_listwdgt.selectedItems()
         experiment_list = []
         for item in items:
-            experiment_list.append(self.experiment_dict[item])
+            experiment_list.append(self.experiment_dict[id(item)])
         self.core_storm.overlay_raw_tlp(experiment_list=experiment_list)
 
 
