@@ -29,8 +29,6 @@ import sys
 import os.path
 from qt import QtCore
 from qt import QtGui
-from qt import QT_API, QT_API_PYSIDE
-
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -107,9 +105,7 @@ class ImportLoader(QtCore.QThread):
             self.start()
 
     def run(self):
-        if QT_API == QT_API_PYSIDE:
-            self.file_names = self.file_names[0]
-        for file_name in self.file_names:
+        for file_name in self.file_names[0]:
             experiment = self.importer.load(file_name)
             self.new_data_ready.emit(experiment, file_name)
 

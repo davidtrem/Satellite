@@ -42,6 +42,8 @@ if QT_API == QT_API_PYQT:
     # Alias PyQt-specific functions for PySide compatibility.
     QtCore.Signal = QtCore.pyqtSignal
     QtCore.Slot = QtCore.pyqtSlot
+    QtGui.QFileDialog.getOpenFileNames = \
+                                QtGui.QFileDialog.getOpenFileNamesAndFilter
 
 elif QT_API == QT_API_PYSIDE:
     from PySide import QtCore, QtGui, QtSvg
