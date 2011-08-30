@@ -14,19 +14,20 @@ def prepare_pyqt4():
     import sip
     sip.setapi("QFileDialog", 2)
     sip.setapi('QString', 2)
-    #sip.setapi('QVariant', 2)
+    sip.setapi('QVariant', 2)
 
 # Select Qt binding, using the QT_API environment variable if available.
+# Fall back on PyQt if no API specified
 QT_API = os.environ.get('QT_API')
 if QT_API is None:
     try:
-        import PySide
-        QT_API = QT_API_PYSIDE
+        prepare_pyqt4()
+        import PyQt4
+        QT_API = QT_API_PYQT
     except ImportError:
         try:
-            prepare_pyqt4()
-            import PyQt4
-            QT_API = QT_API_PYQT
+            import PySide
+            QT_API = QT_API_PYSIDE
         except ImportError:
             raise ImportError('Cannot import PySide or PyQt4')
 
