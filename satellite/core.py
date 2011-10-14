@@ -56,8 +56,9 @@ import satellite.qresource # pylint: disable=W0611
 
 
 class MatplotlibFig(QtGui.QWidget):
+    # pylint: disable=R0904
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self)
+        QtGui.QWidget.__init__(self, parent)
         figure = Figure()
         fig_canvas = FigureCanvasQTAgg(figure)
         fig_toolbar = NavigationToolbar(fig_canvas, self)
@@ -69,12 +70,14 @@ class MatplotlibFig(QtGui.QWidget):
         self.figure = figure
 
 class TLPOverlayFig(MatplotlibFig):
+    # pylint: disable=R0904
     def __init__(self, parent=None):
         MatplotlibFig.__init__(self, parent)
         self.fig = TLPOverlay(self.figure)
 
 
 class TlpFig(MatplotlibFig):
+    # pylint: disable=R0904
     def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
         MatplotlibFig.__init__(self, parent)
         self.figure.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
@@ -83,12 +86,14 @@ class TlpFig(MatplotlibFig):
 
 
 class PulsesPickFig(MatplotlibFig):
+    # pylint: disable=R0904
     def __init__(self, raw_data, title, parent=None):
         MatplotlibFig.__init__(self, parent)
         self.fig = TLPPulsePickFigure(self.figure, raw_data, title)
 
 
 class ViewTab(QtGui.QTabWidget):
+    # pylint: disable=R0904
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
         self.setMovable(True)
@@ -97,6 +102,7 @@ class ViewTab(QtGui.QTabWidget):
 
 
 class ImportLoader(QtCore.QThread):
+    # pylint: disable=R0904
     new_data_ready = QtCore.Signal(object, str)
     def __init__(self, importer_name, parent=None):
         QtCore.QThread.__init__(self, parent)
@@ -120,6 +126,7 @@ class ImportLoader(QtCore.QThread):
 
 
 class MainWin(QtGui.QMainWindow):
+    # pylint: disable=R0904
     def __init__(self, parent=None):
         QtGui.QMainWindow.__init__(self, parent)
         self.setWindowTitle("Satellite")
