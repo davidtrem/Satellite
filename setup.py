@@ -5,9 +5,10 @@
 """
 
 from distutils.core import setup
+from satellite import __version__
 
 setup(name = 'Satellite',
-      version = '0.7a1',
+      version = __version__,
       author = 'David Trémouilles',
       author_email = 'david.trem at gmail.com',
       url = 'http://code.google.com/p/esdanalysistools/',

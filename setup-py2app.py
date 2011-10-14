@@ -28,7 +28,7 @@
 
 from distutils.core import setup
 import py2app
-
+from satellite import __version__
 
 ######################## py2exe setup options ################################
 
@@ -54,7 +54,7 @@ setup(
     app=["run_satellite.py"],
     setup_requires=["py2app"],
     name = "Satellite",
-    version = "0.1",  # --- change this! ---
+    version = __version__,
     description = "",
     author = "David Trémouilles",
     author_email = "david.trem@gmail.com",
