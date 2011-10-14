@@ -9,4 +9,5 @@ dist/
 build/
 MANIFEST
 disttools/satellite_bundle/
+disttools/satellite_bundle.zip
 
