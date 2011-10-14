@@ -24,11 +24,16 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
+"""This is the core part of Satellite graphical user interface.
+"""
+
 
 import sys
+import os
 import os.path
-from qt import QtCore
-from qt import QtGui
+from PySide import QtCore
+from PySide import QtGui
+os.environ['QT_API'] = 'pyside' #important for matplotlib to use pyside
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -43,7 +48,8 @@ from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
 from thunderstorm.istormlib.storm import Storm
 from thunderstorm.istormlib.istorm_view import View
 
-import qresource
+# automaticaly import and initialize qt resources
+import satellite.qresource # pylint: disable=W0611
 
 
 class MatplotlibFig(QtGui.QWidget):
@@ -197,10 +203,11 @@ class MainWin(QtGui.QMainWindow):
 
 
 def main():
+    """Call this function to run Satellite
+    graphical user interface.
+    """
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin()
     mainwin.show()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
-    main()

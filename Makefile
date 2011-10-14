@@ -2,7 +2,7 @@ DirName=$(shell pwd)
 Name=$(notdir $(DirName))
 
 qresource:
-	pyrcc4 qresource.qrc -o qresource.py
+	pyside-rcc satellite/qresource.qrc -o satellite/qresource.py
 
 clean :
 	find ./ -name "*.pyc" -exec rm -f {} \;
