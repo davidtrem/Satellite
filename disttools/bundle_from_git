@@ -1,0 +1,8 @@
+#!/bin/bash
+echo "Creating Satellite Bundle"
+rm -rf satellite_bundle
+git clone --depth 1 git://github.com/davidtrem/Satellite.git satellite_bundle
+git clone --depth 1 git://github.com/davidtrem/ThunderStorm.git
+mv ThunderStorm/thunderstorm satellite_bundle
+rm -rf ThunderStorm
+cp msdll/* satellite_bundle
