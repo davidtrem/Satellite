@@ -24,6 +24,8 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
+"""This is the script to launch Satellite
+"""
 from satellite.core import main
 
 if __name__ == '__main__':

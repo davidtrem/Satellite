@@ -24,6 +24,9 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
+"""Python setup script to generate
+windows executable for Satellite
+"""
 
 
 from distutils.core import setup
