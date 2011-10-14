@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #Copyright (c) 2010 Dimitri Linten
+#Copyright (c) 2011 David Tremouilles
 
 #Permission is hereby granted, free of charge, to any person
 #obtaining a copy of this software and associated documentation
@@ -24,32 +25,33 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
-"""Python setup script to generate
-windows executable for Satellite
-"""
 
 
 from distutils.core import setup
 import py2exe
+from satellite import __version__
 
 
 ######################## py2exe setup options ################################
 
 options  = {
-    'py2exe': {'includes' : ['sip', 'PyQt4', 'PyQt4.QtGui',
+    'py2exe' : {
+    'includes' : [ 'PySide',
                              'matplotlib.backends',
                              'matplotlib.backends.backend_qt4agg',
                              'matplotlib.figure','pylab', 'numpy',
                              'matplotlib.numerix.fft',
                              'matplotlib.numerix.linear_algebra',
                              'matplotlib.numerix.random_array'],
-               'excludes': ['_gtkagg', '_tkagg', '_agg2', '_cairo',
-                            '_cocoaagg', '_fltkagg', '_gtk', '_gtkcairo',
+    'excludes': ['sip', 'PyQt4', 'PyQt4.QtGui', 'PyQt4.Qt',
+                  'PyQt4.QtGui', 'PyQt4.QtCore', 'PyQt4.QtSvg',
+                 '_gtkagg', '_tkagg', '_agg2', '_cairo',
+                 '_cocoaagg', '_fltkagg', '_gtk', '_gtkcairo',
                             '_ssl','bsddb', 'curses',
                             'email', 'pywin.debugger',
                             'pywin.debugger.dbgcon', 'pywin.dialogs', 'tcl',
                             'Tkconstants', 'Tkinter','wx'],
-               'dll_excludes': ['libgdk-win32-2.0-0.dll',
+    'dll_excludes': ['QtWebKit4.dll', 'libgdk-win32-2.0-0.dll',
                                 'libgobject-2.0-0.dll',
                                 'libglib-2.0-0.dll', 'libgtk-win32-2.0-0.dll',
                                 'libgdk_pixbuf-2.0-0.dll', 'libcairo-2.dll',
@@ -58,27 +60,25 @@ options  = {
                                 'tcl85.dll', 'tk85.dll',
                                 'msvcr71.dll'],
                }
-    }
+               }
 
 # since matplotlib v1
 import matplotlib
 matplotlibdata_files = matplotlib.get_py2exe_datafiles()
-del matplotlibdata_files[-1]
+#del matplotlibdata_files[-1]
 
-data_files = ['Microsoft.VC90.CRT.manifest',
-              'msvcr90.dll', 'msvcm90.dll', 'msvcp90.dll']
+data_files = [("Microsoft.VC90.CRT", ('Microsoft.VC90.CRT.manifest',
+              'msvcr90.dll', 'msvcm90.dll', 'msvcp90.dll'))]
 
 data_files = data_files+matplotlibdata_files
 
 setup(
     options = options,
-    # The lib directory contains everything except the executables
-    # and the python dll.
     windows = [{'script' : 'run_satellite.py',
                 'icon_resources': [(1, 'satellite.ico')]}],
     # use out build_installer class as extended py2exe build
     name = "Satellite",
-    version = "0.?",  # --- change this! ---
+    version = __version__,
     description = "",
     author = "David Trémouilles, Dimitri Linten",
     author_email = "david.trem@gmail.com, dimitri.linten@gmail.com",
