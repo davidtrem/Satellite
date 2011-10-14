@@ -12,6 +12,8 @@ clean :
 	rm -f MANIFEST
 	rm -rf dist
 	rm -rf build
+	rm -rf disttools/satellite_bundle
+	rm -rf disttools/satellite_bundle.zip
 
 install:
 	python setup.py install --home=~
