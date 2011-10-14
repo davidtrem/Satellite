@@ -33,7 +33,10 @@ import os
 import os.path
 from PySide import QtCore
 from PySide import QtGui
-os.environ['QT_API'] = 'pyside' #important for matplotlib to use pyside
+
+os.environ['QT_API'] = 'pyside' # for matplotlib to use pyside
+import matplotlib
+matplotlib.use('Qt4Agg') #for py2exe not to search other backends
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
