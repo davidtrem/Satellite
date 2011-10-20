@@ -67,6 +67,8 @@ class MatplotlibFig(QtGui.QWidget):
         fig_vbox.addWidget(fig_canvas)
         fig_vbox.addWidget(fig_toolbar)
         fig_canvas.setParent(self)
+        fig_canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
+        fig_canvas.setFocus()
         self.setLayout(fig_vbox)
         self.figure = figure
 
@@ -81,8 +83,6 @@ class TlpFig(MatplotlibFig):
     # pylint: disable=R0904
     def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
         MatplotlibFig.__init__(self, parent)
-        self.figure.canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.figure.canvas.setFocus()
         self.fig = TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
 
 
