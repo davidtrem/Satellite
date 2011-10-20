@@ -46,6 +46,7 @@ from matplotlib.backends.backend_qt4agg import (
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import TLPFigure
 from thunderstorm.lightning.simple_plots import TLPOverlay
+from thunderstorm.lightning.simple_plots import LeakageIVsFigure
 
 from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
 from thunderstorm.istormlib.storm import Storm
@@ -90,6 +91,13 @@ class PulsesPickFig(MatplotlibFig):
     def __init__(self, raw_data, title, parent=None):
         MatplotlibFig.__init__(self, parent)
         self.fig = TLPPulsePickFigure(self.figure, raw_data, title)
+
+
+class LeakageIVsFig(MatplotlibFig):
+    # pylint: disable=R0904
+    def __init__(self, ivs_data, title, parent=None):
+        MatplotlibFig.__init__(self, parent)
+        self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
 
 
 class ViewTab(QtGui.QTabWidget):
@@ -142,6 +150,7 @@ class MainWin(QtGui.QMainWindow):
         # pointer to single tlp and pulsepicker figure
         self.tlpfig = None  #single tlp figure
         self.ppfig = None   #single pulse picker figure
+        self.leakivsfig = None #leakage IVs figure
 
         #initialize menu
         file_menu = self.menuBar().addMenu("&File")
@@ -175,23 +184,31 @@ class MainWin(QtGui.QMainWindow):
 
     def list_menu(self, position):
         item = self.core_storm_listwdgt.itemAt(position)
+        experiment = self.experiment_dict[id(item)]
         def show_pulse_pick():
-            experiment = self.experiment_dict[id(item)]
             self.ppfig = PulsesPickFig(experiment.raw_data, item.text())
             self.ppfig.show()
+            
         def show_tlp():
-            experiment = self.experiment_dict[id(item)]
             self.tlpfig = TlpFig(experiment.raw_data.tlp_curve, item.text(),
                                  experiment.raw_data.leak_evol)
             self.tlpfig.show()
+            
+        def show_leakage_ivs():
+            self.leakivsfig = LeakageIVsFig(experiment.raw_data.iv_leak,
+                                            item.text())
+            self.leakivsfig.show()
 
         menu = QtGui.QMenu(parent=self)
-        pulse_pick_action = QtGui.QAction("Pulse pick", menu)
+        pulse_pick_action = QtGui.QAction("Pulse pick tool", menu)
         pulse_pick_action.triggered.connect(show_pulse_pick)
-        tlp_action = QtGui.QAction("Show TLP", menu)
+        tlp_action = QtGui.QAction("Show TLP graph", menu)
         tlp_action.triggered.connect(show_tlp)
+        leakage_pick_action = QtGui.QAction("Show leakage IVs", menu)
+        leakage_pick_action.triggered.connect(show_leakage_ivs)
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
+        menu.addAction(leakage_pick_action)
         menu.exec_(self.core_storm_listwdgt.mapToGlobal(position))
 
 
