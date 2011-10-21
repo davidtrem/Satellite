@@ -135,14 +135,15 @@ class ImportLoader(QtCore.QThread):
 
 class MainWin(QtGui.QMainWindow):
     # pylint: disable=R0904
-    def __init__(self, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+    def __init__(self):
+        QtGui.QMainWindow.__init__(self)
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(':/satellite.png'),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.resize(800, 600)
+        self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
         tlp_overlay = TLPOverlayFig()
         self.core_storm = Storm(tlp_overlay.fig)
@@ -199,19 +200,31 @@ class MainWin(QtGui.QMainWindow):
                                             item.text())
             self.leakivsfig.show()
 
-        menu = QtGui.QMenu(parent=self)
+        menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
-        pulse_pick_action = QtGui.QAction("Pulse pick tool", menu)
+        pulse_pick_action = QtGui.QAction("Pulse pick tool", self)
         pulse_pick_action.triggered.connect(show_pulse_pick)
         pulse_pick_action.setEnabled(experiment.raw_data.has_transient_pulses)
+        pulse_pick_action.setStatusTip(
+            "Visualize transient data from selected TLP-data point(s)"
+            if experiment.raw_data.has_transient_pulses
+            else "Sorry, No transient data available")
         #Set tlp with leakage evolution  in context menu
-        tlp_action = QtGui.QAction("TLP with leakage", menu)
+        tlp_action = QtGui.QAction("TLP with leakage", self)
         tlp_action.triggered.connect(show_tlp)
         tlp_action.setEnabled(experiment.raw_data.has_leakage_evolution)
+        tlp_action.setStatusTip(
+            "Visualize TLP with leakage evolution"
+            if experiment.raw_data.has_leakage_evolution
+            else "Sorry, No leakage evolution data available")
         #Set leakage ivs in context menu
-        leakage_ivs_action = QtGui.QAction("Leakage IVs", menu)
+        leakage_ivs_action = QtGui.QAction("Leakage IVs", self)
         leakage_ivs_action.triggered.connect(show_leakage_ivs)
         leakage_ivs_action.setEnabled(experiment.raw_data.has_leakage_ivs)
+        leakage_ivs_action.setStatusTip(
+            "Visualize leakage IVs"
+            if experiment.raw_data.has_leakage_ivs
+            else "Sorry, No leakage IVs available")
 
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
