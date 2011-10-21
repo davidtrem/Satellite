@@ -31,6 +31,7 @@
 import sys
 import os
 import os.path
+import logging
 from PySide import QtCore
 from PySide import QtGui
 
@@ -133,6 +134,16 @@ class ImportLoader(QtCore.QThread):
             self.new_data_ready.emit(experiment, file_name)
 
 
+class SatusBarLogHandler(logging.Handler):
+    def __init__(self, statusbar):
+        logging.Handler.__init__(self)
+        self.statusbar = statusbar
+
+    def emit(self, record):
+        log_message = self.format(record)
+        self.statusbar.showMessage(log_message)
+
+
 class MainWin(QtGui.QMainWindow):
     # pylint: disable=R0904
     def __init__(self):
@@ -143,6 +154,15 @@ class MainWin(QtGui.QMainWindow):
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
         self.resize(800, 600)
+
+        #Setup to display log messages in the status bar
+        log = logging.getLogger('thunderstorm')
+        log.setLevel(logging.INFO)
+        channel = SatusBarLogHandler(self.statusBar())
+        channel.setLevel(logging.INFO)
+        channel.setFormatter(logging.Formatter('%(name)-12s: %(message)s'))
+        log.addHandler(channel)
+
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
         tlp_overlay = TLPOverlayFig()
@@ -253,15 +273,14 @@ def main():
     """Call this function to run Satellite
     graphical user interface.
     """
-    import logging
     # Setting up logging to send INFO to the console
     log = logging.getLogger('thunderstorm')
     log.setLevel(logging.INFO)
-    chanel = logging.StreamHandler()
-    chanel.setLevel(logging.INFO)
+    channel = logging.StreamHandler()
+    channel.setLevel(logging.INFO)
     formatter = logging.Formatter('%(name)-12s: %(message)s')
-    chanel.setFormatter(formatter)
-    log.addHandler(chanel)
+    channel.setFormatter(formatter)
+    log.addHandler(channel)
 
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin()
