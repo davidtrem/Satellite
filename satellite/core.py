@@ -200,15 +200,22 @@ class MainWin(QtGui.QMainWindow):
             self.leakivsfig.show()
 
         menu = QtGui.QMenu(parent=self)
+        #Set pulse picker in context menu
         pulse_pick_action = QtGui.QAction("Pulse pick tool", menu)
         pulse_pick_action.triggered.connect(show_pulse_pick)
-        tlp_action = QtGui.QAction("Show TLP graph", menu)
+        pulse_pick_action.setEnabled(experiment.raw_data.has_transient_pulses)
+        #Set tlp with leakage evolution  in context menu
+        tlp_action = QtGui.QAction("TLP with leakage", menu)
         tlp_action.triggered.connect(show_tlp)
-        leakage_pick_action = QtGui.QAction("Show leakage IVs", menu)
-        leakage_pick_action.triggered.connect(show_leakage_ivs)
+        tlp_action.setEnabled(experiment.raw_data.has_leakage_evolution)
+        #Set leakage ivs in context menu
+        leakage_ivs_action = QtGui.QAction("Leakage IVs", menu)
+        leakage_ivs_action.triggered.connect(show_leakage_ivs)
+        leakage_ivs_action.setEnabled(experiment.raw_data.has_leakage_ivs)
+
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
-        menu.addAction(leakage_pick_action)
+        menu.addAction(leakage_ivs_action)
         menu.exec_(self.core_storm_listwdgt.mapToGlobal(position))
 
 
@@ -237,11 +244,11 @@ def main():
     # Setting up logging to send INFO to the console
     log = logging.getLogger('thunderstorm')
     log.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
+    chanel = logging.StreamHandler()
+    chanel.setLevel(logging.INFO)
     formatter = logging.Formatter('%(name)-12s: %(message)s')
-    ch.setFormatter(formatter)
-    log.addHandler(ch)
+    chanel.setFormatter(formatter)
+    log.addHandler(chanel)
 
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin()
