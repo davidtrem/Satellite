@@ -188,12 +188,12 @@ class MainWin(QtGui.QMainWindow):
         def show_pulse_pick():
             self.ppfig = PulsesPickFig(experiment.raw_data, item.text())
             self.ppfig.show()
-            
+
         def show_tlp():
             self.tlpfig = TlpFig(experiment.raw_data.tlp_curve, item.text(),
                                  experiment.raw_data.leak_evol)
             self.tlpfig.show()
-            
+
         def show_leakage_ivs():
             self.leakivsfig = LeakageIVsFig(experiment.raw_data.iv_leak,
                                             item.text())
@@ -233,6 +233,16 @@ def main():
     """Call this function to run Satellite
     graphical user interface.
     """
+    import logging
+    # Setting up logging to send INFO to the console
+    log = logging.getLogger('thunderstorm')
+    log.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(name)-12s: %(message)s')
+    ch.setFormatter(formatter)
+    log.addHandler(ch)
+
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin()
     mainwin.show()
