@@ -146,13 +146,13 @@ class SatusBarLogHandler(logging.Handler):
 
 class MainWin(QtGui.QMainWindow):
     # pylint: disable=R0904
-    def __init__(self):
+    def __init__(self, app):
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(':/satellite.png'),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.setWindowIcon(icon)
+        app.setWindowIcon(icon)
         self.resize(800, 600)
 
         #Setup to display log messages in the status bar
@@ -283,7 +283,7 @@ def main():
     log.addHandler(channel)
 
     app = QtGui.QApplication(sys.argv)
-    mainwin = MainWin()
+    mainwin = MainWin(app)
     mainwin.show()
     sys.exit(app.exec_())
 
