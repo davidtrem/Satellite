@@ -156,12 +156,12 @@ class MainWin(QtGui.QMainWindow):
         self.resize(800, 600)
 
         #Setup to display log messages in the status bar
-        log = logging.getLogger('thunderstorm')
-        log.setLevel(logging.INFO)
-        channel = SatusBarLogHandler(self.statusBar())
-        channel.setLevel(logging.INFO)
-        channel.setFormatter(logging.Formatter('%(name)-12s: %(message)s'))
-        log.addHandler(channel)
+        #log = logging.getLogger('thunderstorm')
+        #log.setLevel(logging.INFO)
+        #channel = SatusBarLogHandler(self.statusBar())
+        #channel.setLevel(logging.INFO)
+        #channel.setFormatter(logging.Formatter('%(name)-12s: %(message)s'))
+        #log.addHandler(channel)
 
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
