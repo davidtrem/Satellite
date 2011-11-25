@@ -53,6 +53,9 @@ from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
 from thunderstorm.istormlib.storm import Storm
 from thunderstorm.istormlib.istorm_view import View
 
+from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
+
+
 # automaticaly import and initialize qt resources
 import satellite.qresource # pylint: disable=W0611
 
@@ -100,6 +103,12 @@ class LeakageIVsFig(MatplotlibFig):
         MatplotlibFig.__init__(self, parent)
         self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
 
+class LeakagesPickFig(MatplotlibFig):
+    # pylint: disable=R0904
+    def __init__(self, raw_data, title, parent=None):
+        MatplotlibFig.__init__(self, parent)
+#       self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
+        self.fig = TLPLeakagePickFigure(self.figure, raw_data, title)
 
 class ViewTab(QtGui.QTabWidget):
     # pylint: disable=R0904
@@ -174,7 +183,7 @@ class MainWin(QtGui.QMainWindow):
         self.tlpfig = None  #single tlp figure
         self.ppfig = None   #single pulse picker figure
         self.leakivsfig = None #leakage IVs figure
-
+        self.lpfig = None # leakage IV pulse pick
         #initialize menu
         file_menu = self.menuBar().addMenu("&File")
         import_menu = file_menu.addMenu("&Import")
@@ -222,6 +231,10 @@ class MainWin(QtGui.QMainWindow):
             self.leakivsfig = LeakageIVsFig(experiment.raw_data.iv_leak,
                                             item.text())
             self.leakivsfig.show()
+         
+        def show_leakage_pick():
+            self.lpfig = LeakagesPickFig(experiment.raw_data, item.text())
+            self.lpfig.show()           
 
         menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
@@ -248,10 +261,19 @@ class MainWin(QtGui.QMainWindow):
             "Visualize leakage IVs"
             if experiment.raw_data.has_leakage_ivs
             else "Sorry, No leakage IVs available")
+        #Set leakage picker in context menu
+        leakage_pick_action = QtGui.QAction("Leakage pick tool", self)
+        leakage_pick_action.triggered.connect(show_leakage_pick)
+        leakage_pick_action.setEnabled(experiment.raw_data.has_transient_pulses)
+        leakage_pick_action.setStatusTip(
+            "Visualize leakage data from selected TLP-data point(s)"
+            if experiment.raw_data.has_transient_pulses
+            else "Sorry, No leakage data available")        
 
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
         menu.addAction(leakage_ivs_action)
+        menu.addAction(leakage_pick_action)
         menu.exec_(self.core_storm_listwdgt.mapToGlobal(position))
 
     def status_bar_show_message(self, message):
