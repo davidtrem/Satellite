@@ -32,10 +32,17 @@ import sys
 import os
 import os.path
 import logging
-from PySide import QtCore
-from PySide import QtGui
+from PyQt4 import QtCore
+from PyQt4 import QtGui
 
-os.environ['QT_API'] = 'pyside'  # For matplotlib to use pyside
+QtCore.Signal = QtCore.pyqtSignal
+QtCore.Slot = QtCore.pyqtSlot
+QtGui.QFileDialog.getOpenFileNames = \
+    QtGui.QFileDialog.getOpenFileNamesAndFilter
+
+
+os.environ['QT_API'] = 'pyqt' # for matplotlib to use pyqt
+
 import matplotlib
 matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
 
@@ -156,7 +163,7 @@ class ImportLoader(QtCore.QThread):
 
     def run(self):
         for file_name in self.file_names[0]:
-            experiment = self.importer.load(file_name)
+            experiment = self.importer.load(str(file_name))
             self.new_data_ready.emit(experiment, file_name)
 
 
@@ -350,7 +357,7 @@ class MainWin(QtGui.QMainWindow):
         self.statusBar().showMessage(message)
 
     def add_new_experiment(self, experiment, file_name):
-        data_name = os.path.splitext(os.path.basename(file_name))[0]
+        data_name = os.path.splitext(os.path.basename(str(file_name)))[0]
         experiment.exp_name = data_name
         self.core_storm.append(View(experiment))
         item = QtGui.QListWidgetItem(experiment.exp_name,
