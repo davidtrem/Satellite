@@ -113,12 +113,21 @@ class ViewTab(QtGui.QTabWidget):
 class ImportLoader(QtCore.QThread):
     # pylint: disable=R0904
     new_data_ready = QtCore.Signal(object, str)
+    log_message_signal = QtCore.Signal(str)
+
     def __init__(self, importer_name, parent=None):
         QtCore.QThread.__init__(self, parent)
         self.importer_name = importer_name
         self.importer = plug_dict[self.importer_name]()
         self.file_ext = self.importer.file_ext
         self.file_names = ""
+        #Setup to display log messages in the status bar
+        log = logging.getLogger('thunderstorm')
+        log.setLevel(logging.INFO)
+        channel = SatusBarLogHandler(self.log_message_signal)
+        channel.setLevel(logging.INFO)
+        channel.setFormatter(logging.Formatter('%(name)-12s: %(message)s'))
+        log.addHandler(channel)
 
     def __call__(self):
         self.file_names = QtGui.QFileDialog.getOpenFileNames(
@@ -126,7 +135,7 @@ class ImportLoader(QtCore.QThread):
             '%s (%s)'%(self.importer_name, self.file_ext),
             options = QtGui.QFileDialog.DontUseNativeDialog)
         if len(self.file_names) > 0:
-            self.start()
+            self.start() #Acutally call run self.run()
 
     def run(self):
         for file_name in self.file_names[0]:
@@ -135,13 +144,13 @@ class ImportLoader(QtCore.QThread):
 
 
 class SatusBarLogHandler(logging.Handler):
-    def __init__(self, statusbar):
+    def __init__(self, log_signal):
         logging.Handler.__init__(self)
-        self.statusbar = statusbar
+        self.log_signal = log_signal
 
     def emit(self, record):
         log_message = self.format(record)
-        self.statusbar.showMessage(log_message)
+        self.log_signal.emit(log_message)
 
 
 class MainWin(QtGui.QMainWindow):
@@ -155,13 +164,6 @@ class MainWin(QtGui.QMainWindow):
         app.setWindowIcon(icon)
         self.resize(800, 600)
 
-        #Setup to display log messages in the status bar
-        #log = logging.getLogger('thunderstorm')
-        #log.setLevel(logging.INFO)
-        #channel = SatusBarLogHandler(self.statusBar())
-        #channel.setLevel(logging.INFO)
-        #channel.setFormatter(logging.Formatter('%(name)-12s: %(message)s'))
-        #log.addHandler(channel)
 
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
@@ -182,6 +184,7 @@ class MainWin(QtGui.QMainWindow):
             loader = ImportLoader(importer_name, self)
             load_file_action.triggered.connect(loader)
             loader.new_data_ready.connect(self.add_new_experiment)
+            loader.log_message_signal.connect(self.status_bar_show_message)
 
         #initialize core_storm and associated QListWidget
         core_storm_listwdgt = QtGui.QListWidget(self)
@@ -251,6 +254,8 @@ class MainWin(QtGui.QMainWindow):
         menu.addAction(leakage_ivs_action)
         menu.exec_(self.core_storm_listwdgt.mapToGlobal(position))
 
+    def status_bar_show_message(self, message):
+        self.statusBar().showMessage(message)
 
     def add_new_experiment(self, experiment, file_name):
         data_name = os.path.splitext(os.path.basename(file_name))[0]
