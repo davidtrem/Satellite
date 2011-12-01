@@ -264,10 +264,10 @@ class MainWin(QtGui.QMainWindow):
         #Set leakage picker in context menu
         leakage_pick_action = QtGui.QAction("Leakage pick tool", self)
         leakage_pick_action.triggered.connect(show_leakage_pick)
-        leakage_pick_action.setEnabled(experiment.raw_data.has_transient_pulses)
+        leakage_pick_action.setEnabled(experiment.raw_data.has_leakage_ivs)
         leakage_pick_action.setStatusTip(
             "Visualize leakage data from selected TLP-data point(s)"
-            if experiment.raw_data.has_transient_pulses
+            if experiment.raw_data.has_leakage_ivs
             else "Sorry, No leakage data available")        
 
         menu.addAction(pulse_pick_action)
