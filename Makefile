@@ -15,7 +15,7 @@ clean :
 	rm -rf disttools/satellite_bundle
 	rm -rf disttools/satellite_bundle.zip
 
-install:
+install: clean
 	python setup.py install --home=~
 
 archive : clean
