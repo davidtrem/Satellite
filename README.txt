@@ -1,19 +1,12 @@
 ========
  README
 ========
-
-Howto ocreate an executable for windows
-=======================================
-
-- Make sure an up to date version of thunderstorm library is
-in your path.
-- Copy the three MS*90 DLL into satellite folder.
-- Set properly the version number in the setup-py2exe.py file.
-- run "python setup-py2exe.py py2exe",
-- the exe is then located in the dist folder.
-- You might then want to rename the "dist" folder as "satellite_package",
-- and move this folder into satellite_exe folder which contain a bat
-  file to directly launch the exe.
-- Create a compressed of the satellite_exe folder
-- and distribute it...
+Welcome !
+Satellite allows to visualize a TLP data from a quite large number
+of TLP setups: Oryx, Barth, HANWA, HPPI, LAAS, SERMA. Basically,
+it allows to compare TLP IVs, visualize a TLP IV curve with its leakage
+evolution, to select and visualize transient current and voltage associated
+to a  TLP point and visualize the leakage IVs.
+Satellite is based on thunderstorm library.
+Satellite is under MIT license.
 
