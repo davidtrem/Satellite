@@ -1,8 +1,9 @@
 #!/bin/bash
 echo "Creating Satellite Bundle"
 rm -rf satellite_bundle
-git clone --depth 1 git://github.com/davidtrem/Satellite.git satellite_bundle
-git clone --depth 1 git://github.com/davidtrem/ThunderStorm.git
+repo="git://github.com/ESDAnalysisTools"
+git clone --depth 1 $repo/Satellite.git satellite_bundle
+git clone --depth 1 $repo/ThunderStorm.git
 mv ThunderStorm/thunderstorm satellite_bundle
 rm -rf ThunderStorm
 zip -r9 satellite_bundle.zip satellite_bundle/
