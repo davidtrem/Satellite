@@ -14,6 +14,7 @@ clean :
 	rm -rf build
 	rm -rf disttools/satellite_bundle
 	rm -rf disttools/satellite_bundle.zip
+	./VERSION-GEN
 
 install: clean
 	python setup.py install --home=~
