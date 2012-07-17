@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# Tag revisions like this:
+# $ git tag -a -m "Version 0.2" v0.2 HEAD
+
+VF=./satellite/__init__.py
+DEFAULT_VERSION=UNKNOWN
+
+LF='
+'
+
+# First see if there is a version file (included in release tarballs),
+# then try git-describe, then default.
+if test -d .git -o -f .git &&
+	VN=$(git describe --abbrev=4 HEAD 2>/dev/null) &&
+	case "$VN" in
+	*$LF*) (exit 1) ;;
+	v[0-9]*)
+		git update-index -q --refresh
+		test -z "$(git diff-index --name-only HEAD --)" ||
+		VN="$VN-mod" ;;
+	esac
+then
+        continue
+	#VN=$(echo "$VN" | sed -e 's/-/./g');
+else
+	VN="$DEFAULT_VERSION"
+fi
+
+VN=$(expr "$VN" : v*'\(.*\)')
+
+# Show the version to the user via stderr
+echo >&2 "version: $VN"
+
+# Parse the existing VERSION-FILE
+if test -r $VF
+then
+        VC=$(tail -1 $VF | sed  -e 's/^__version__ = "\(.*\)"/\1/')
+else
+	VC=unset
+fi
+
+# If version has changed, update VERSION-FILE
+test "$VN" = "$VC" || {
+        sed 's/__version__ = .*/__version__ = "'$VN'"/g' $VF > tmp.py
+        mv tmp.py $VF
+	echo >&2 "($VF updated)"
+}
