@@ -44,8 +44,6 @@ from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg,
     NavigationToolbar2QTAgg as NavigationToolbar)
 
-from internal_ipkernel import InternalIPKernel
-
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import TLPFigure
 from thunderstorm.lightning.simple_plots import TLPOverlay
@@ -167,11 +165,10 @@ class SatusBarLogHandler(logging.Handler):
         self.log_signal.emit(log_message)
 
 
-class MainWin(QtGui.QMainWindow, InternalIPKernel):
+class MainWin(QtGui.QMainWindow):
     # pylint: disable=R0904
     def __init__(self, app):
         QtGui.QMainWindow.__init__(self)
-        self.init_ipkernel('qt')
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(':/satellite.png'),
@@ -183,7 +180,6 @@ class MainWin(QtGui.QMainWindow, InternalIPKernel):
         self.view_tab = ViewTab()
         tlp_overlay = TLPOverlayFig()
         self.core_storm = Storm(tlp_overlay.fig)
-        self.namespace['storm'] = self.core_storm
         self.view_tab.addTab(tlp_overlay, "TLP")
         # pointer to single tlp and pulsepicker figure
         self.tlpfig = None  # single tlp figure
@@ -303,10 +299,7 @@ class MainWin(QtGui.QMainWindow, InternalIPKernel):
         self.core_storm.overlay_raw_tlp(experiment_list=experiment_list)
 
 
-def main():
-    """Call this function to run Satellite
-    graphical user interface.
-    """
+def _init_logging():
     # Setting up logging to send INFO to the console
     log = logging.getLogger('thunderstorm')
     log.setLevel(logging.INFO)
@@ -316,9 +309,13 @@ def main():
     channel.setFormatter(formatter)
     log.addHandler(channel)
 
+
+def main():
+    """Call this function to run Satellite
+    graphical user interface.
+    """
+    _init_logging()
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin(app)
     mainwin.show()
-    # Very important, IPython-specific step: this gets GUI event loop
-    # integration going, and it replaces calling app.exec_()
-    sys.exit(mainwin.ipkernel.start())
+    sys.exit(app.exec_())

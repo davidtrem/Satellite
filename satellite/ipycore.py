@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#Copyright (c) 2010 David Trémouilles
+#Copyright (c) 2012 David Trémouilles
 
 #Permission is hereby granted, free of charge, to any person
 #obtaining a copy of this software and associated documentation
@@ -24,22 +24,33 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
-"""This is the script to launch Satellite
+"""Run Satellite graphical user interface
+on top of ipython.
 """
-import argparse
 
-from satellite.ipycore import main as ipymain
-from satellite.core import main
+import sys
+from PySide import QtGui
+
+from internal_ipkernel import InternalIPKernel
+
+from core import MainWin, _init_logging
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser(
-             description="Run Satellite program")
-    parser.add_argument("-i", "--ipy", help="run on top of ipython",
-                        action="store_true")
-    args = parser.parse_args()
-    if args.ipy:
-        ipymain()
-    else:
-        main()
+class IpyMainWin(MainWin, InternalIPKernel):
+    def __init__(self, app):
+        self.init_ipkernel('qt')
+        MainWin.__init__(self, app)
+        self.namespace['storm'] = self.core_storm
+
+
+def main():
+    """Call this function to run Satellite
+    graphical user interface.
+    """
+    _init_logging()
+    app = QtGui.QApplication(sys.argv)
+    mainwin = IpyMainWin(app)
+    mainwin.show()
+    # Very important, IPython-specific step: this gets GUI event loop
+    # integration going, and it replaces calling app.exec_()
+    sys.exit(mainwin.ipkernel.start())
