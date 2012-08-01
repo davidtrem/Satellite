@@ -35,9 +35,9 @@ import logging
 from PySide import QtCore
 from PySide import QtGui
 
-os.environ['QT_API'] = 'pyside' # for matplotlib to use pyside
+os.environ['QT_API'] = 'pyside'  # For matplotlib to use pyside
 import matplotlib
-matplotlib.use('Qt4Agg') #for py2exe not to search other backends
+matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -57,7 +57,7 @@ from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
 
 # automaticaly import and initialize qt resources
-import satellite.qresource # pylint: disable=W0611
+import satellite.qresource  # pylint: disable=W0611
 
 
 class MatplotlibFig(QtGui.QWidget):
@@ -75,6 +75,7 @@ class MatplotlibFig(QtGui.QWidget):
         fig_canvas.setFocus()
         self.setLayout(fig_vbox)
         self.figure = figure
+
 
 class TLPOverlayFig(MatplotlibFig):
     # pylint: disable=R0904
@@ -103,12 +104,14 @@ class LeakageIVsFig(MatplotlibFig):
         MatplotlibFig.__init__(self, parent)
         self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
 
+
 class LeakagesPickFig(MatplotlibFig):
     # pylint: disable=R0904
     def __init__(self, raw_data, title, parent=None):
         MatplotlibFig.__init__(self, parent)
 #       self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
         self.fig = TLPLeakagePickFigure(self.figure, raw_data, title)
+
 
 class ViewTab(QtGui.QTabWidget):
     # pylint: disable=R0904
@@ -140,11 +143,11 @@ class ImportLoader(QtCore.QThread):
 
     def __call__(self):
         self.file_names = QtGui.QFileDialog.getOpenFileNames(
-            None, "Open %s data file"%self.importer_name, '',
-            '%s (%s)'%(self.importer_name, self.file_ext),
-            options = QtGui.QFileDialog.DontUseNativeDialog)
+            None, "Open %s data file" % self.importer_name, '',
+            '%s (%s)' % (self.importer_name, self.file_ext),
+            options=QtGui.QFileDialog.DontUseNativeDialog)
         if len(self.file_names) > 0:
-            self.start() #Acutally call run self.run()
+            self.start()  # Acutally call run self.run()
 
     def run(self):
         for file_name in self.file_names[0]:
@@ -173,22 +176,21 @@ class MainWin(QtGui.QMainWindow):
         app.setWindowIcon(icon)
         self.resize(800, 600)
 
-
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
         tlp_overlay = TLPOverlayFig()
         self.core_storm = Storm(tlp_overlay.fig)
         self.view_tab.addTab(tlp_overlay, "TLP")
         # pointer to single tlp and pulsepicker figure
-        self.tlpfig = None  #single tlp figure
-        self.ppfig = None   #single pulse picker figure
-        self.leakivsfig = None #leakage IVs figure
-        self.lpfig = None # leakage IV pulse pick
+        self.tlpfig = None  # single tlp figure
+        self.ppfig = None   # single pulse picker figure
+        self.leakivsfig = None  # leakage IVs figure
+        self.lpfig = None  # leakage IV pulse pick
         #initialize menu
         file_menu = self.menuBar().addMenu("&File")
         import_menu = file_menu.addMenu("&Import")
         for importer_name in plug_dict.keys():
-            load_file_action = QtGui.QAction("&%s"%importer_name, self)
+            load_file_action = QtGui.QAction("&%s" % importer_name, self)
             import_menu.addAction(load_file_action)
             loader = ImportLoader(importer_name, self)
             load_file_action.triggered.connect(loader)
@@ -218,6 +220,7 @@ class MainWin(QtGui.QMainWindow):
     def list_menu(self, position):
         item = self.core_storm_listwdgt.itemAt(position)
         experiment = self.experiment_dict[id(item)]
+
         def show_pulse_pick():
             self.ppfig = PulsesPickFig(experiment.raw_data, item.text())
             self.ppfig.show()
@@ -231,10 +234,10 @@ class MainWin(QtGui.QMainWindow):
             self.leakivsfig = LeakageIVsFig(experiment.raw_data.iv_leak,
                                             item.text())
             self.leakivsfig.show()
-         
+
         def show_leakage_pick():
             self.lpfig = LeakagesPickFig(experiment.raw_data, item.text())
-            self.lpfig.show()           
+            self.lpfig.show()
 
         menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
@@ -268,7 +271,7 @@ class MainWin(QtGui.QMainWindow):
         leakage_pick_action.setStatusTip(
             "Visualize leakage data from selected TLP-data point(s)"
             if experiment.raw_data.has_leakage_ivs
-            else "Sorry, No leakage data available")        
+            else "Sorry, No leakage data available")
 
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
@@ -313,4 +316,3 @@ def main():
     mainwin = MainWin(app)
     mainwin.show()
     sys.exit(app.exec_())
-

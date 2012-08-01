@@ -37,17 +37,17 @@ from satellite import __version__
 
 ######################## py2exe setup options ################################
 
-options  = {
-    'bdist_esky' : {
-    'includes' : [],
+options = {
+    'bdist_esky': {
+    'includes': [],
     'excludes': ['sip', 'PyQt4', 'PyQt4.QtGui', 'PyQt4.Qt',
                   'PyQt4.QtGui', 'PyQt4.QtCore', 'PyQt4.QtSvg',
                  '_gtkagg', '_tkagg', '_agg2', '_cairo',
                  '_cocoaagg', '_fltkagg', '_gtk', '_gtkcairo',
-                            '_ssl','bsddb', 'curses',
-                            'email', 'pywin.debugger',
-                            'pywin.debugger.dbgcon', 'pywin.dialogs', 'tcl',
-                            'Tkconstants', 'Tkinter','wx'],
+                 '_ssl', 'bsddb', 'curses',
+                 'email', 'pywin.debugger',
+                 'pywin.debugger.dbgcon', 'pywin.dialogs', 'tcl',
+                 'Tkconstants', 'Tkinter', 'wx'],
                }
                }
 
@@ -71,14 +71,14 @@ run_sat = Executable('run_satellite.py',
           )
 
 setup(
-    options = options,
+    options=options,
     scripts=[run_sat],
     # use out build_installer class as extended py2exe build
-    name = "Satellite",
-    version = __version__,
-    description = "",
-    author = "David Trémouilles, Dimitri Linten",
-    author_email = "david.trem@gmail.com, dimitri.linten@gmail.com",
-    url = "http://code.google.com/p/esdanalysistools/",
-    data_files = data_files
+    name="Satellite",
+    version=__version__,
+    description="",
+    author="David Trémouilles, Dimitri Linten",
+    author_email="david.trem@gmail.com, dimitri.linten@gmail.com",
+    url="http://code.google.com/p/esdanalysistools/",
+    data_files=data_files
     )
