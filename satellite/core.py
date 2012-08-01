@@ -44,6 +44,8 @@ from matplotlib.backends.backend_qt4agg import (
     FigureCanvasQTAgg,
     NavigationToolbar2QTAgg as NavigationToolbar)
 
+from internal_ipkernel import InternalIPKernel
+
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import TLPFigure
 from thunderstorm.lightning.simple_plots import TLPOverlay
@@ -165,10 +167,11 @@ class SatusBarLogHandler(logging.Handler):
         self.log_signal.emit(log_message)
 
 
-class MainWin(QtGui.QMainWindow):
+class MainWin(QtGui.QMainWindow, InternalIPKernel):
     # pylint: disable=R0904
     def __init__(self, app):
         QtGui.QMainWindow.__init__(self)
+        self.init_ipkernel('qt')
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(':/satellite.png'),
@@ -180,6 +183,7 @@ class MainWin(QtGui.QMainWindow):
         self.view_tab = ViewTab()
         tlp_overlay = TLPOverlayFig()
         self.core_storm = Storm(tlp_overlay.fig)
+        self.namespace['storm'] = self.core_storm
         self.view_tab.addTab(tlp_overlay, "TLP")
         # pointer to single tlp and pulsepicker figure
         self.tlpfig = None  # single tlp figure
@@ -315,4 +319,6 @@ def main():
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin(app)
     mainwin.show()
-    sys.exit(app.exec_())
+    # Very important, IPython-specific step: this gets GUI event loop
+    # integration going, and it replaces calling app.exec_()
+    sys.exit(mainwin.ipkernel.start())
