@@ -299,10 +299,7 @@ class MainWin(QtGui.QMainWindow):
         self.core_storm.overlay_raw_tlp(experiment_list=experiment_list)
 
 
-def main():
-    """Call this function to run Satellite
-    graphical user interface.
-    """
+def _init_logging():
     # Setting up logging to send INFO to the console
     log = logging.getLogger('thunderstorm')
     log.setLevel(logging.INFO)
@@ -312,6 +309,12 @@ def main():
     channel.setFormatter(formatter)
     log.addHandler(channel)
 
+
+def main():
+    """Call this function to run Satellite
+    graphical user interface.
+    """
+    _init_logging()
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin(app)
     mainwin.show()
