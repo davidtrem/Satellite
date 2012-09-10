@@ -55,7 +55,9 @@ from thunderstorm.istormlib.istorm_view import View
 
 from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
-from reporting import *
+from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
+
+from satellite.reporting import ReportFrame
 
 # automaticaly import and initialize qt resources
 import satellite.qresource  # pylint: disable=W0611
@@ -253,7 +255,7 @@ class MainWin(QtGui.QMainWindow):
 
         def show_reporting():
             self.report_wind = ReportFrame(
-                experiment.raw_data.report.report_name)
+                experiment.analysis.report.report_name)
             self.report_wind.c.value_changed.connect(update_report)
             self.report_wind.c.save_doc.connect(save_report)
             self.report_wind.css_change.value_changed.connect(
@@ -261,20 +263,22 @@ class MainWin(QtGui.QMainWindow):
             self.report_wind.show()
 
         def update_report():
-            experiment.raw_data.spot_v = self.report_wind.new_spot
-            experiment.raw_data.fail_perc = self.report_wind.new_fail
-            experiment.raw_data.seuil = self.report_wind.new_seuil
-            experiment.raw_data.update_analysis()
+            experiment.analysis.spot_v = self.report_wind.new_spot
+            experiment.analysis.fail_perc = self.report_wind.new_fail
+            experiment.analysis.seuil = self.report_wind.new_seuil
+            experiment.analysis.update_analysis()
             self.report_wind.view.view.reload()
 
         @QtCore.Slot(str)
         def save_report(save_name):
-            experiment.raw_data.save_analysis(save_name)
+            experiment.analysis.save_analysis(save_name)
+            #TODO should rename save_analysis by save
 
         def update_report_style():
-            experiment.raw_data.css = self.report_wind.css_str
-            experiment.raw_data.update_style()
+            experiment.analysis.css = self.report_wind.css_str
+            experiment.analysis.update_style()
             self.report_wind.view.view.reload()
+            #TODO something is wrong with this naming
 
         menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
@@ -313,10 +317,10 @@ class MainWin(QtGui.QMainWindow):
         #Set report tool in context menu
         report_action = QtGui.QAction("Reporting tool", self)
         report_action.triggered.connect(show_reporting)
-        report_action.setEnabled(experiment.raw_data.has_report)
+        report_action.setEnabled(experiment.analysis.has_report)
         report_action.setStatusTip(
             "Visualize report from selected TLP-data"
-            if experiment.raw_data.has_report
+            if experiment.analysis.has_report
             else "Sorry, No report available")
 
         menu.addAction(pulse_pick_action)
@@ -336,6 +340,7 @@ class MainWin(QtGui.QMainWindow):
         item = QtGui.QListWidgetItem(experiment.exp_name,
                                      self.core_storm_listwdgt)
         item.setToolTip(data_name)
+        experiment.analysis = RawTLPdataAnalysis(experiment.raw_data)
         self.experiment_dict[id(item)] = experiment
 
     def core_storm_selection_change(self):
