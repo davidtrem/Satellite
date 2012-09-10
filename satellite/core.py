@@ -198,7 +198,10 @@ class MainWin(QtGui.QMainWindow):
             loader.new_data_ready.connect(self.add_new_experiment)
             loader.log_message_signal.connect(self.status_bar_show_message)
 
-        self.menuquit = QtGui.QAction("&Close", self, shortcut=QtGui.QKeySequence.Close, statusTip="Quit the Application", triggered=self.close)
+        self.menuquit = QtGui.QAction("&Close", self,
+                                      shortcut=QtGui.QKeySequence.Close,
+                                      statusTip="Quit the Application",
+                                      triggered=self.close)
         file_menu.addAction(self.menuquit)
 
         help_menu = self.menuBar().addMenu("&Help")
@@ -206,8 +209,6 @@ class MainWin(QtGui.QMainWindow):
         self.about_action.triggered.connect(self.show_about)
         self.about_action.setStatusTip("about satellite")
         help_menu.addAction(self.about_action)
-
-
         #initialize core_storm and associated QListWidget
         core_storm_listwdgt = QtGui.QListWidget(self)
         core_storm_listwdgt.setSelectionMode(
@@ -251,29 +252,29 @@ class MainWin(QtGui.QMainWindow):
             self.lpfig.show()
 
         def show_reporting():
-            self.report_wind=ReportFrame(experiment.raw_data.report.report_name)
+            self.report_wind = ReportFrame(
+                experiment.raw_data.report.report_name)
             self.report_wind.c.value_changed.connect(update_report)
             self.report_wind.c.save_doc.connect(save_report)
-            self.report_wind.css_change.value_changed.connect(update_report_style)
+            self.report_wind.css_change.value_changed.connect(
+                update_report_style)
             self.report_wind.show()
 
         def update_report():
-            #print "report needs an update as value changed:",self.report_wind.new_spot
-            experiment.raw_data.spot_v=self.report_wind.new_spot
-            experiment.raw_data.fail_perc=self.report_wind.new_fail
-            experiment.raw_data.seuil=self.report_wind.new_seuil
+            experiment.raw_data.spot_v = self.report_wind.new_spot
+            experiment.raw_data.fail_perc = self.report_wind.new_fail
+            experiment.raw_data.seuil = self.report_wind.new_seuil
             experiment.raw_data.update_analysis()
             self.report_wind.view.view.reload()
 
         @QtCore.Slot(str)
         def save_report(save_name):
-			experiment.raw_data.save_analysis(save_name)
+            experiment.raw_data.save_analysis(save_name)
 
         def update_report_style():
-            experiment.raw_data.css=self.report_wind.css_str
+            experiment.raw_data.css = self.report_wind.css_str
             experiment.raw_data.update_style()
             self.report_wind.view.view.reload()
-
 
         menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
@@ -345,10 +346,13 @@ class MainWin(QtGui.QMainWindow):
         self.core_storm.overlay_raw_tlp(experiment_list=experiment_list)
 
     def show_about(self):
-        about_str="Satellite\n\nversion:"+satellite.__version__+"\n\nCopyright (c) 2010 David Tremouilles\n\n"
-        about_str=about_str+"Satellite is software dedicated to view and analysis TLP measurements,"
-        about_str=about_str+"for further information please go on www.satelitte.com"
-        QtGui.QMessageBox.about(self,"About Satellite",about_str)
+        about_str = ("Satellite\n\nversion:" + satellite.__version__ +
+                     "\n\nCopyright (c) 2012 David Tremouilles\n\n")
+        about_str = (about_str + "Satellite is software dedicated to " +
+                     "view and analysis TLP measurements,")
+        about_str = (about_str + "for further information please go on " +
+                     "http://code.google.com/p/esdanalysistools/")
+        QtGui.QMessageBox.about(self, "About Satellite", about_str)
 
 
 def _init_logging():
