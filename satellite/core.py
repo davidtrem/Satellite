@@ -56,8 +56,10 @@ from thunderstorm.istormlib.istorm_view import View
 from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
 from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
-
 from satellite.reporting import ReportFrame
+
+from thunderstorm.thunder.tlp import Droplet
+
 
 # automaticaly import and initialize qt resources
 import satellite.qresource  # pylint: disable=W0611
@@ -191,6 +193,20 @@ class MainWin(QtGui.QMainWindow):
         self.lpfig = None  # leakage IV pulse pick
         #initialize menu
         file_menu = self.menuBar().addMenu("&File")
+        # Load oef file
+        load_action = QtGui.QAction("&Load", self)
+        file_menu.addAction(load_action)
+        def load():
+            file_names = QtGui.QFileDialog.getOpenFileNames(
+                    None, "Load oef file", '',
+                    'Open ESD Format (*.oef)',
+                    options = QtGui.QFileDialog.DontUseNativeDialog)
+            if len(file_names) > 0:
+                for file_name in file_names[0]:
+                    experiment = Droplet(file_name)
+                    self.add_new_experiment(experiment, file_name)
+        load_action.triggered.connect(load)
+
         import_menu = file_menu.addMenu("&Import")
         for importer_name in plug_dict.keys():
             load_file_action = QtGui.QAction("&%s" % importer_name, self)
@@ -313,7 +329,6 @@ class MainWin(QtGui.QMainWindow):
             "Visualize leakage data from selected TLP-data point(s)"
             if experiment.raw_data.has_leakage_ivs
             else "Sorry, No leakage data available")
-
         #Set report tool in context menu
         report_action = QtGui.QAction("Reporting tool", self)
         report_action.triggered.connect(show_reporting)
