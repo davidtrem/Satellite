@@ -35,9 +35,9 @@ import logging
 from PySide import QtCore
 from PySide import QtGui
 
-os.environ['QT_API'] = 'pyside' # for matplotlib to use pyside
+os.environ['QT_API'] = 'pyside'  # For matplotlib to use pyside
 import matplotlib
-matplotlib.use('Qt4Agg') #for py2exe not to search other backends
+matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (
@@ -55,9 +55,12 @@ from thunderstorm.istormlib.istorm_view import View
 
 from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
+from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
+
+from satellite.reporting import ReportFrame
 
 # automaticaly import and initialize qt resources
-import satellite.qresource # pylint: disable=W0611
+import satellite.qresource  # pylint: disable=W0611
 
 
 class MatplotlibFig(QtGui.QWidget):
@@ -75,6 +78,7 @@ class MatplotlibFig(QtGui.QWidget):
         fig_canvas.setFocus()
         self.setLayout(fig_vbox)
         self.figure = figure
+
 
 class TLPOverlayFig(MatplotlibFig):
     # pylint: disable=R0904
@@ -103,12 +107,14 @@ class LeakageIVsFig(MatplotlibFig):
         MatplotlibFig.__init__(self, parent)
         self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
 
+
 class LeakagesPickFig(MatplotlibFig):
     # pylint: disable=R0904
     def __init__(self, raw_data, title, parent=None):
         MatplotlibFig.__init__(self, parent)
 #       self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
         self.fig = TLPLeakagePickFigure(self.figure, raw_data, title)
+
 
 class ViewTab(QtGui.QTabWidget):
     # pylint: disable=R0904
@@ -140,11 +146,11 @@ class ImportLoader(QtCore.QThread):
 
     def __call__(self):
         self.file_names = QtGui.QFileDialog.getOpenFileNames(
-            None, "Open %s data file"%self.importer_name, '',
-            '%s (%s)'%(self.importer_name, self.file_ext),
-            options = QtGui.QFileDialog.DontUseNativeDialog)
+            None, "Open %s data file" % self.importer_name, '',
+            '%s (%s)' % (self.importer_name, self.file_ext),
+            options=QtGui.QFileDialog.DontUseNativeDialog)
         if len(self.file_names) > 0:
-            self.start() #Acutally call run self.run()
+            self.start()  # Acutally call run self.run()
 
     def run(self):
         for file_name in self.file_names[0]:
@@ -173,28 +179,38 @@ class MainWin(QtGui.QMainWindow):
         app.setWindowIcon(icon)
         self.resize(800, 600)
 
-
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
         tlp_overlay = TLPOverlayFig()
         self.core_storm = Storm(tlp_overlay.fig)
         self.view_tab.addTab(tlp_overlay, "TLP")
         # pointer to single tlp and pulsepicker figure
-        self.tlpfig = None  #single tlp figure
-        self.ppfig = None   #single pulse picker figure
-        self.leakivsfig = None #leakage IVs figure
-        self.lpfig = None # leakage IV pulse pick
+        self.tlpfig = None  # single tlp figure
+        self.ppfig = None   # single pulse picker figure
+        self.leakivsfig = None  # leakage IVs figure
+        self.lpfig = None  # leakage IV pulse pick
         #initialize menu
         file_menu = self.menuBar().addMenu("&File")
         import_menu = file_menu.addMenu("&Import")
         for importer_name in plug_dict.keys():
-            load_file_action = QtGui.QAction("&%s"%importer_name, self)
+            load_file_action = QtGui.QAction("&%s" % importer_name, self)
             import_menu.addAction(load_file_action)
             loader = ImportLoader(importer_name, self)
             load_file_action.triggered.connect(loader)
             loader.new_data_ready.connect(self.add_new_experiment)
             loader.log_message_signal.connect(self.status_bar_show_message)
 
+        self.menuquit = QtGui.QAction("&Close", self,
+                                      shortcut=QtGui.QKeySequence.Close,
+                                      statusTip="Quit the Application",
+                                      triggered=self.close)
+        file_menu.addAction(self.menuquit)
+
+        help_menu = self.menuBar().addMenu("&Help")
+        self.about_action = QtGui.QAction("About", self)
+        self.about_action.triggered.connect(self.show_about)
+        self.about_action.setStatusTip("about satellite")
+        help_menu.addAction(self.about_action)
         #initialize core_storm and associated QListWidget
         core_storm_listwdgt = QtGui.QListWidget(self)
         core_storm_listwdgt.setSelectionMode(
@@ -218,6 +234,7 @@ class MainWin(QtGui.QMainWindow):
     def list_menu(self, position):
         item = self.core_storm_listwdgt.itemAt(position)
         experiment = self.experiment_dict[id(item)]
+
         def show_pulse_pick():
             self.ppfig = PulsesPickFig(experiment.raw_data, item.text())
             self.ppfig.show()
@@ -231,10 +248,37 @@ class MainWin(QtGui.QMainWindow):
             self.leakivsfig = LeakageIVsFig(experiment.raw_data.iv_leak,
                                             item.text())
             self.leakivsfig.show()
-         
+
         def show_leakage_pick():
             self.lpfig = LeakagesPickFig(experiment.raw_data, item.text())
-            self.lpfig.show()           
+            self.lpfig.show()
+
+        def show_reporting():
+            self.report_wind = ReportFrame(
+                experiment.analysis.report.report_name)
+            self.report_wind.c.value_changed.connect(update_report)
+            self.report_wind.c.save_doc.connect(save_report)
+            self.report_wind.css_change.value_changed.connect(
+                update_report_style)
+            self.report_wind.show()
+
+        def update_report():
+            experiment.analysis.spot_v = self.report_wind.new_spot
+            experiment.analysis.fail_perc = self.report_wind.new_fail
+            experiment.analysis.seuil = self.report_wind.new_seuil
+            experiment.analysis.update_analysis()
+            self.report_wind.view.view.reload()
+
+        @QtCore.Slot(str)
+        def save_report(save_name):
+            experiment.analysis.save_analysis(save_name)
+            #TODO should rename save_analysis by save
+
+        def update_report_style():
+            experiment.analysis.css = self.report_wind.css_str
+            experiment.analysis.update_style()
+            self.report_wind.view.view.reload()
+            #TODO something is wrong with this naming
 
         menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
@@ -268,12 +312,22 @@ class MainWin(QtGui.QMainWindow):
         leakage_pick_action.setStatusTip(
             "Visualize leakage data from selected TLP-data point(s)"
             if experiment.raw_data.has_leakage_ivs
-            else "Sorry, No leakage data available")        
+            else "Sorry, No leakage data available")
+
+        #Set report tool in context menu
+        report_action = QtGui.QAction("Reporting tool", self)
+        report_action.triggered.connect(show_reporting)
+        report_action.setEnabled(experiment.analysis.has_report)
+        report_action.setStatusTip(
+            "Visualize report from selected TLP-data"
+            if experiment.analysis.has_report
+            else "Sorry, No report available")
 
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
         menu.addAction(leakage_ivs_action)
         menu.addAction(leakage_pick_action)
+        menu.addAction(report_action)
         menu.exec_(self.core_storm_listwdgt.mapToGlobal(position))
 
     def status_bar_show_message(self, message):
@@ -286,6 +340,7 @@ class MainWin(QtGui.QMainWindow):
         item = QtGui.QListWidgetItem(experiment.exp_name,
                                      self.core_storm_listwdgt)
         item.setToolTip(data_name)
+        experiment.analysis = RawTLPdataAnalysis(experiment.raw_data)
         self.experiment_dict[id(item)] = experiment
 
     def core_storm_selection_change(self):
@@ -295,11 +350,17 @@ class MainWin(QtGui.QMainWindow):
             experiment_list.append(self.experiment_dict[id(item)])
         self.core_storm.overlay_raw_tlp(experiment_list=experiment_list)
 
+    def show_about(self):
+        about_str = ("Satellite\n\nversion:" + satellite.__version__ +
+                     "\n\nCopyright (c) 2012 David Tremouilles\n\n")
+        about_str = (about_str + "Satellite is software dedicated to " +
+                     "view and analysis TLP measurements,")
+        about_str = (about_str + "for further information please go on " +
+                     "http://code.google.com/p/esdanalysistools/")
+        QtGui.QMessageBox.about(self, "About Satellite", about_str)
 
-def main():
-    """Call this function to run Satellite
-    graphical user interface.
-    """
+
+def _init_logging():
     # Setting up logging to send INFO to the console
     log = logging.getLogger('thunderstorm')
     log.setLevel(logging.INFO)
@@ -309,8 +370,13 @@ def main():
     channel.setFormatter(formatter)
     log.addHandler(channel)
 
+
+def main():
+    """Call this function to run Satellite
+    graphical user interface.
+    """
+    _init_logging()
     app = QtGui.QApplication(sys.argv)
     mainwin = MainWin(app)
     mainwin.show()
     sys.exit(app.exec_())
-
