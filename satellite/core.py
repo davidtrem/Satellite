@@ -46,7 +46,7 @@ from matplotlib.backends.backend_qt4agg import (
 
 from thunderstorm.thunder.importers.tools import plug_dict
 from thunderstorm.lightning.simple_plots import TLPFigure
-from thunderstorm.lightning.simple_plots import TLPOverlay
+from thunderstorm.lightning.simple_plots import TLPOverlayWithLeakEvol
 from thunderstorm.lightning.simple_plots import LeakageIVsFigure
 
 from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
@@ -81,7 +81,7 @@ class TLPOverlayFig(MatplotlibFig):
     # pylint: disable=R0904
     def __init__(self, parent=None):
         MatplotlibFig.__init__(self, parent)
-        self.fig = TLPOverlay(self.figure)
+        self.fig = TLPOverlayWithLeakEvol(self.figure)
 
 
 class TlpFig(MatplotlibFig):
