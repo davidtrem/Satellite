@@ -26,20 +26,30 @@
 
 """This is the script to launch Satellite
 """
-import argparse
-
-from satellite.ipycore import main as ipymain
-from satellite.core import main
-
 
 if __name__ == '__main__':
+
+    import argparse
+
+    from satellite.core import main
+    try:
+        from satellite.ipycore import main as ipymain
+    except ImportError, mes:
+        print mes
+        ipy_support = False
+    else:
+        ipy_support = True
+
     parser = argparse.ArgumentParser()
-    parser = argparse.ArgumentParser(
-             description="Run Satellite program")
+    parser = argparse.ArgumentParser(description="Run Satellite program")
     parser.add_argument("-i", "--ipy", help="run on top of ipython",
                         action="store_true")
     args = parser.parse_args()
     if args.ipy:
-        ipymain()
+        if ipy_support:
+            ipymain()
+        else:
+            print("You might have to install missing module(s) " +
+                  "to run on top of ipython")
     else:
         main()
