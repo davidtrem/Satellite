@@ -29,7 +29,6 @@
 windows executable for Satellite
 """
 
-from esky import bdist_esky
 from esky.bdist_esky import Executable
 from distutils.core import setup
 from satellite import __version__

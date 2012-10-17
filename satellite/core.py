@@ -196,11 +196,12 @@ class MainWin(QtGui.QMainWindow):
         # Load oef file
         load_action = QtGui.QAction("&Load", self)
         file_menu.addAction(load_action)
+
         def load():
             file_names = QtGui.QFileDialog.getOpenFileNames(
                     None, "Load oef file", '',
                     'Open ESD Format (*.oef)',
-                    options = QtGui.QFileDialog.DontUseNativeDialog)
+                    options=QtGui.QFileDialog.DontUseNativeDialog)
             if len(file_names) > 0:
                 for file_name in file_names[0]:
                     experiment = Droplet(file_name)

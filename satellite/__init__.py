@@ -26,4 +26,4 @@
 """satellite python package.
 """
 
-__version__ = "0.8preview"
+__version__ = "0.8preview-2-g7fcf"
