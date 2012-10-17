@@ -29,7 +29,8 @@ class InternalIPKernel(object):
         # namespace when the user clicks the 'namespace' button
         self._init_keys = set(self.namespace.keys())
 
-        # Example: a variable that will be seen by the user in the shell, and
+        # Example: a variable that will be seen by the user
+        # in the shell, and
         # that the GUI modifies (the 'Counter++' button increments it):
         self.namespace['app_counter'] = 0
         #self.namespace['ipkernel'] = self.ipkernel  # dbg
