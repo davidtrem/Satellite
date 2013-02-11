@@ -41,7 +41,7 @@ QtGui.QFileDialog.getOpenFileNames = \
     QtGui.QFileDialog.getOpenFileNamesAndFilter
 
 
-os.environ['QT_API'] = 'pyqt' # for matplotlib to use pyqt
+os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
 
 import matplotlib
 matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
@@ -156,8 +156,8 @@ class ImportLoader(QtCore.QThread):
     def __call__(self):
         self.file_names = QtGui.QFileDialog.getOpenFileNames(
             None, "Open %s data file" % self.importer_name, '',
-            '%s (%s)' % (self.importer_name, self.file_ext),
-            options=QtGui.QFileDialog.DontUseNativeDialog)
+            '%s (%s)' % (self.importer_name, self.file_ext),)
+            #options=QtGui.QFileDialog.DontUseNativeDialog)
         if len(self.file_names) > 0:
             self.start()  # Acutally call run self.run()
 
@@ -206,12 +206,13 @@ class MainWin(QtGui.QMainWindow):
 
         def load():
             file_names = QtGui.QFileDialog.getOpenFileNames(
-                    None, "Load oef file", '',
-                    'Open ESD Format (*.oef)',
-                    options=QtGui.QFileDialog.DontUseNativeDialog)
+                None, "Load oef file", '',
+                'Open ESD Format (*.oef)',)
+                #options=QtGui.QFileDialog.DontUseNativeDialog)
             if len(file_names) > 0:
+                print file_names
                 for file_name in file_names[0]:
-                    experiment = Droplet(file_name)
+                    experiment = Droplet(str(file_name))
                     self.add_new_experiment(experiment, file_name)
         load_action.triggered.connect(load)
 
