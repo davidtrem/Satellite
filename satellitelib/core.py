@@ -210,7 +210,6 @@ class MainWin(QtGui.QMainWindow):
                 'Open ESD Format (*.oef)',)
                 #options=QtGui.QFileDialog.DontUseNativeDialog)
             if len(file_names) > 0:
-                print file_names
                 for file_name in file_names[0]:
                     experiment = Droplet(str(file_name))
                     self.add_new_experiment(experiment, file_name)
