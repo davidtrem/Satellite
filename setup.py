@@ -5,7 +5,7 @@
 """
 
 from distutils.core import setup
-from satellite import __version__
+from satellitelib import __version__
 
 setup(name='Satellite',
       version=__version__,
@@ -14,6 +14,6 @@ setup(name='Satellite',
       url='http://code.google.com/p/esdanalysistools/',
       license='MIT',
       platforms=['any'],
-      packages=['satellite'],
-      scripts=['run_satellite.py', ],
+      packages=['satellitelib'],
+      scripts=['satellite.py', ],
       )

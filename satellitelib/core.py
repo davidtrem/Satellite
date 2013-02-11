@@ -63,13 +63,13 @@ from thunderstorm.istormlib.istorm_view import View
 from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
 from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
-from satellite.reporting import ReportFrame
+from satellitelib.reporting import ReportFrame
 
 from thunderstorm.thunder.tlp import Droplet
 
 
 # automaticaly import and initialize qt resources
-import satellite.qresource  # pylint: disable=W0611
+import satellitelib.qresource  # pylint: disable=W0611
 
 
 class MatplotlibFig(QtGui.QWidget):

@@ -61,7 +61,7 @@ data_files = [('Microsoft.VC90.CRT', ('Microsoft.VC90.CRT.manifest',
 data_files = data_files + matplotlibdata_files
 
 
-run_sat = Executable('run_satellite.py',
+run_sat = Executable('satellite.py',
             #  give our app the standard Python icon
             icon='satellite.ico',
             #  we could make the app gui-only by setting this to True
