@@ -32,10 +32,17 @@ import sys
 import os
 import os.path
 import logging
-from PySide import QtCore
-from PySide import QtGui
+from PyQt4 import QtCore
+from PyQt4 import QtGui
 
-os.environ['QT_API'] = 'pyside'  # For matplotlib to use pyside
+QtCore.Signal = QtCore.pyqtSignal
+QtCore.Slot = QtCore.pyqtSlot
+QtGui.QFileDialog.getOpenFileNames = \
+    QtGui.QFileDialog.getOpenFileNamesAndFilter
+
+
+os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
+
 import matplotlib
 matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
 
@@ -56,13 +63,13 @@ from thunderstorm.istormlib.istorm_view import View
 from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
 from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
-from satellite.reporting import ReportFrame
+from satellitelib.reporting import ReportFrame
 
 from thunderstorm.thunder.tlp import Droplet
 
 
 # automaticaly import and initialize qt resources
-import satellite.qresource  # pylint: disable=W0611
+import satellitelib.qresource  # pylint: disable=W0611
 
 
 class MatplotlibFig(QtGui.QWidget):
@@ -149,14 +156,14 @@ class ImportLoader(QtCore.QThread):
     def __call__(self):
         self.file_names = QtGui.QFileDialog.getOpenFileNames(
             None, "Open %s data file" % self.importer_name, '',
-            '%s (%s)' % (self.importer_name, self.file_ext),
-            options=QtGui.QFileDialog.DontUseNativeDialog)
+            '%s (%s)' % (self.importer_name, self.file_ext),)
+            #options=QtGui.QFileDialog.DontUseNativeDialog)
         if len(self.file_names) > 0:
             self.start()  # Acutally call run self.run()
 
     def run(self):
         for file_name in self.file_names[0]:
-            experiment = self.importer.load(file_name)
+            experiment = self.importer.load(str(file_name))
             self.new_data_ready.emit(experiment, file_name)
 
 
@@ -199,12 +206,12 @@ class MainWin(QtGui.QMainWindow):
 
         def load():
             file_names = QtGui.QFileDialog.getOpenFileNames(
-                    None, "Load oef file", '',
-                    'Open ESD Format (*.oef)',
-                    options=QtGui.QFileDialog.DontUseNativeDialog)
+                None, "Load oef file", '',
+                'Open ESD Format (*.oef)',)
+                #options=QtGui.QFileDialog.DontUseNativeDialog)
             if len(file_names) > 0:
                 for file_name in file_names[0]:
-                    experiment = Droplet(file_name)
+                    experiment = Droplet(str(file_name))
                     self.add_new_experiment(experiment, file_name)
         load_action.triggered.connect(load)
 
@@ -350,7 +357,7 @@ class MainWin(QtGui.QMainWindow):
         self.statusBar().showMessage(message)
 
     def add_new_experiment(self, experiment, file_name):
-        data_name = os.path.splitext(os.path.basename(file_name))[0]
+        data_name = os.path.splitext(os.path.basename(str(file_name)))[0]
         experiment.exp_name = data_name
         self.core_storm.append(View(experiment))
         item = QtGui.QListWidgetItem(experiment.exp_name,

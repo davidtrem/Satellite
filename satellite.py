@@ -31,9 +31,9 @@ if __name__ == '__main__':
 
     import argparse
 
-    from satellite.core import main
+    from satellitelib.core import main
     try:
-        from satellite.ipycore import main as ipymain
+        from satellitelib.ipycore import main as ipymain
     except ImportError, mes:
         print mes
         ipy_support = False
