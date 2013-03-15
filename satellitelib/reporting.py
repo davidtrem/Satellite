@@ -189,7 +189,7 @@ class ReportFrame(QtGui.QMainWindow):
     def set_css_file(self):
         self.css_file = QtGui.QFileDialog.getOpenFileName(
             None, "Open css file", '',
-            'CSS (*.css)', options=0)
+            'CSS (*.css)')
         if len(self.css_file) > 0:
             self.css_str = self.css_file[0]
             self.css_change.value_changed.emit()
