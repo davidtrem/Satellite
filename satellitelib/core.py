@@ -52,20 +52,21 @@ from matplotlib.backends.backend_qt4agg import (
     NavigationToolbar2QTAgg as NavigationToolbar)
 
 from thunderstorm.thunder.importers.tools import plug_dict
+
 from thunderstorm.lightning.simple_plots import TLPFigure
 from thunderstorm.lightning.simple_plots import TLPOverlayWithLeakEvol
 from thunderstorm.lightning.simple_plots import LeakageIVsFigure
-
 from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
+from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
+
 from thunderstorm.istormlib.storm import Storm
 from thunderstorm.istormlib.istorm_view import View
 
-from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
 from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
-from satellitelib.reporting import ReportFrame
-
 from thunderstorm.thunder.tlp import Droplet
+
+from .reporting import ReportFrame
 
 
 # automaticaly import and initialize qt resources
@@ -190,9 +191,9 @@ class MainWin(QtGui.QMainWindow):
 
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
-        tlp_overlay = TLPOverlayFig()
-        self.core_storm = Storm(tlp_overlay.fig)
-        self.view_tab.addTab(tlp_overlay, "TLP")
+        self.tlp_overlay = TLPOverlayFig()
+        self.core_storm = Storm()
+        self.view_tab.addTab(self.tlp_overlay, "TLP")
         # pointer to single tlp and pulsepicker figure
         self.tlpfig = None  # single tlp figure
         self.ppfig = None   # single pulse picker figure
@@ -371,11 +372,12 @@ class MainWin(QtGui.QMainWindow):
         experiment_list = []
         for item in items:
             experiment_list.append(self.experiment_dict[id(item)])
-        self.core_storm.overlay_raw_tlp(experiment_list=experiment_list)
+        self.core_storm.overlay_raw_tlp(self.tlp_overlay.fig,
+                                        experiment_list=tuple(experiment_list))
 
     def show_about(self):
-        about_str = ("Satellite\n\nversion:" + satellite.__version__ +
-                     "\n\nCopyright (c) 2012 David Tremouilles\n\n")
+        about_str = ("Satellite\n\nversion:" + satellitelib.__version__ +
+                     "\n\nCopyright (c) 2013 David Tremouilles\n\n")
         about_str = (about_str + "Satellite is software dedicated to " +
                      "view and analysis TLP measurements,")
         about_str = (about_str + "for further information please go on " +
