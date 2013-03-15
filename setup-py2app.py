@@ -26,20 +26,20 @@
 
 from distutils.core import setup
 import py2app
-from satellite import __version__
+
+from satellitelib import __version__
 
 ######################## py2exe setup options ################################
 
 options = {
     'py2exe': {'includes': ['sip', 'PyQt4', 'PyQt4.QtGui'],
-                'excludes': ['_gtkagg', '_tkagg', '_agg2', '_cairo',
-                             '_cocoaagg', '_fltkagg', '_gtk', '_gtkcairo',
-                             '_ssl', 'bsddb', 'curses',
-                             'email', 'pywin.debugger',
-                             'pywin.debugger.dbgcon', 'pywin.dialogs', 'tcl',
-                             'Tkconstants', 'Tkinter', 'wx'],
-               }
-    }
+               'excludes': ['_gtkagg', '_tkagg', '_agg2', '_cairo',
+                            '_cocoaagg', '_fltkagg', '_gtk', '_gtkcairo',
+                            '_ssl', 'bsddb', 'curses',
+                            'email', 'pywin.debugger',
+                            'pywin.debugger.dbgcon', 'pywin.dialogs', 'tcl',
+                            'Tkconstants', 'Tkinter', 'wx'],
+               }}
 
 # since matplotlib v1
 import matplotlib
@@ -57,5 +57,4 @@ setup(
     author="David Trémouilles",
     author_email="david.trem@gmail.com",
     url="http://code.google.com/p/esdanalysistools/",
-    data_files=data_files
-    )
+    data_files=data_files)

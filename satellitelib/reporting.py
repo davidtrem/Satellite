@@ -1,8 +1,13 @@
 # -*- coding: iso-8859-1 -*-
 
 import os
-from PySide import QtGui, QtCore
-import PySide.QtWebKit
+from PyQt4 import QtGui, QtCore
+import PyQt4.QtWebKit
+
+QtCore.Signal = QtCore.pyqtSignal
+QtCore.Slot = QtCore.pyqtSlot
+QtGui.QFileDialog.getOpenFileNames = \
+    QtGui.QFileDialog.getOpenFileNamesAndFilter
 
 h = 400
 l = 900
@@ -70,8 +75,8 @@ class ReportWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.dispo = QtGui.QVBoxLayout(self)
 
-        my_url = PySide.QtCore.QUrl.fromLocalFile(my_adr)
-        self.view = PySide.QtWebKit.QWebView(self)
+        my_url = PyQt4.QtCore.QUrl.fromLocalFile(my_adr)
+        self.view = PyQt4.QtWebKit.QWebView(self)
         self.view.load(my_url)
         self.dispo.addWidget(self.view)
         self.setLayout(self.dispo)
@@ -174,9 +179,9 @@ class ReportFrame(QtGui.QMainWindow):
     def show_threshold(self):
         baseDir = os.path.dirname(self.report_adr)
         baseDir = os.path.join(baseDir, 'report_analysis')
-        my_url = PySide.QtCore.QUrl.fromLocalFile(baseDir + "/derivative.png")
+        my_url = PyQt4.QtCore.QUrl.fromLocalFile(baseDir + "/derivative.png")
         self.wind = QtGui.QMainWindow()
-        self.myWid = PySide.QtWebKit.QWebView(self)
+        self.myWid = PyQt4.QtWebKit.QWebView(self)
         self.myWid.load(my_url)
         self.wind.setCentralWidget(self.myWid)
         self.wind.show()

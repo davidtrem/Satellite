@@ -29,11 +29,10 @@ on top of ipython.
 """
 
 import sys
-from PySide import QtGui
+from PyQt4 import QtGui
 
-from internal_ipkernel import InternalIPKernel
-
-from core import MainWin, _init_logging
+from .internal_ipkernel import InternalIPKernel
+from .core import MainWin, _init_logging
 
 
 class IpyMainWin(MainWin, InternalIPKernel):
