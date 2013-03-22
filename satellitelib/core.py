@@ -39,6 +39,8 @@ QtCore.Signal = QtCore.pyqtSignal
 QtCore.Slot = QtCore.pyqtSlot
 QtGui.QFileDialog.getOpenFileNames = \
     QtGui.QFileDialog.getOpenFileNamesAndFilter
+QtGui.QFileDialog.getOpenFileName = \
+    QtGui.QFileDialog.getOpenFileNameAndFilter
 
 
 os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
@@ -192,7 +194,6 @@ class MainWin(QtGui.QMainWindow):
         self.statusBar().showMessage("Welcome in Satellite !")
         self.view_tab = ViewTab()
         self.tlp_overlay = TLPOverlayFig()
-        self.core_storm = Storm()
         self.view_tab.addTab(self.tlp_overlay, "TLP")
         # pointer to single tlp and pulsepicker figure
         self.tlpfig = None  # single tlp figure
@@ -201,20 +202,26 @@ class MainWin(QtGui.QMainWindow):
         self.lpfig = None  # leakage IV pulse pick
         #initialize menu
         file_menu = self.menuBar().addMenu("&File")
-        # Load oef file
-        load_action = QtGui.QAction("&Load", self)
-        file_menu.addAction(load_action)
 
-        def load():
-            file_names = QtGui.QFileDialog.getOpenFileNames(
+        #Open oef file
+        open_action = QtGui.QAction("&Open", self)
+        file_menu.addAction(open_action)
+
+        def oef_open():
+            file_tuple = QtGui.QFileDialog.getOpenFileName(
                 None, "Load oef file", '',
                 'Open ESD Format (*.oef)',)
-                #options=QtGui.QFileDialog.DontUseNativeDialog)
-            if len(file_names) > 0:
-                for file_name in file_names[0]:
-                    experiment = Droplet(str(file_name))
-                    self.add_new_experiment(experiment, file_name)
-        load_action.triggered.connect(load)
+            if len(file_tuple) > 0:
+                file_name = file_tuple[0]
+                self.core_storm = Storm(str(file_name))
+                for view in self.core_storm:
+                    exper = view.experiment
+                    item = QtGui.QListWidgetItem(exper.exp_name,
+                                                 self.core_storm_listwdgt)
+                    item.setToolTip(exper.exp_name)
+                    exper.analysis = RawTLPdataAnalysis(exper.raw_data)
+                    self.experiment_dict[id(item)] = exper
+        open_action.triggered.connect(oef_open)
 
         import_menu = file_menu.addMenu("&Import")
         for importer_name in plug_dict.keys():
@@ -236,7 +243,7 @@ class MainWin(QtGui.QMainWindow):
         self.about_action.triggered.connect(self.show_about)
         self.about_action.setStatusTip("about satellite")
         help_menu.addAction(self.about_action)
-        #initialize core_storm and associated QListWidget
+        #initialize associated QListWidget to the open storm
         core_storm_listwdgt = QtGui.QListWidget(self)
         core_storm_listwdgt.setSelectionMode(
             QtGui.QAbstractItemView.ExtendedSelection)
