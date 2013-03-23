@@ -48,26 +48,17 @@ os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
 import matplotlib
 matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
 
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_qt4agg import (
-    FigureCanvasQTAgg,
-    NavigationToolbar2QTAgg as NavigationToolbar)
-
 from thunderstorm.thunder.importers.tools import plug_dict
-
-from thunderstorm.lightning.simple_plots import TLPFigure
-from thunderstorm.lightning.simple_plots import TLPOverlayWithLeakEvol
-from thunderstorm.lightning.simple_plots import LeakageIVsFigure
-from thunderstorm.lightning.pulse_observer import TLPPulsePickFigure
-from thunderstorm.lightning.leakage_observer import TLPLeakagePickFigure
 
 from thunderstorm.istormlib.storm import Storm
 from thunderstorm.istormlib.istorm_view import View
 
-
 from thunderstorm.thunder.tlpanalysis import RawTLPdataAnalysis
-from thunderstorm.thunder.tlp import Droplet
 
+from .matplot import (TLPOverlayFig, PulsesPickFig, TlpFig,
+                      LeakageIVsFig, LeakagesPickFig)
+
+from .guielem import SatusBarLogHandler, ViewTab
 from .reporting import ReportFrame
 
 
@@ -75,71 +66,9 @@ from .reporting import ReportFrame
 import satellitelib.qresource  # pylint: disable=W0611
 
 
-class MatplotlibFig(QtGui.QWidget):
-    # pylint: disable=R0904
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        figure = Figure()
-        fig_canvas = FigureCanvasQTAgg(figure)
-        fig_toolbar = NavigationToolbar(fig_canvas, self)
-        fig_vbox = QtGui.QVBoxLayout()
-        fig_vbox.addWidget(fig_canvas)
-        fig_vbox.addWidget(fig_toolbar)
-        fig_canvas.setParent(self)
-        fig_canvas.setFocusPolicy(QtCore.Qt.ClickFocus)
-        fig_canvas.setFocus()
-        self.setLayout(fig_vbox)
-        self.figure = figure
-
-
-class TLPOverlayFig(MatplotlibFig):
-    # pylint: disable=R0904
-    def __init__(self, parent=None):
-        MatplotlibFig.__init__(self, parent)
-        self.fig = TLPOverlayWithLeakEvol(self.figure)
-
-
-class TlpFig(MatplotlibFig):
-    # pylint: disable=R0904
-    def __init__(self, tlp_curve_data, title, leakage_evol=None, parent=None):
-        MatplotlibFig.__init__(self, parent)
-        self.fig = TLPFigure(self.figure, tlp_curve_data, title, leakage_evol)
-
-
-class PulsesPickFig(MatplotlibFig):
-    # pylint: disable=R0904
-    def __init__(self, raw_data, title, parent=None):
-        MatplotlibFig.__init__(self, parent)
-        self.fig = TLPPulsePickFigure(self.figure, raw_data, title)
-
-
-class LeakageIVsFig(MatplotlibFig):
-    # pylint: disable=R0904
-    def __init__(self, ivs_data, title, parent=None):
-        MatplotlibFig.__init__(self, parent)
-        self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
-
-
-class LeakagesPickFig(MatplotlibFig):
-    # pylint: disable=R0904
-    def __init__(self, raw_data, title, parent=None):
-        MatplotlibFig.__init__(self, parent)
-#       self.fig = LeakageIVsFigure(self.figure, ivs_data, title)
-        self.fig = TLPLeakagePickFigure(self.figure, raw_data, title)
-
-
-class ViewTab(QtGui.QTabWidget):
-    # pylint: disable=R0904
-    def __init__(self, parent=None):
-        QtGui.QTabWidget.__init__(self, parent)
-        self.setMovable(True)
-        self.setTabsClosable(False)
-        self.setUsesScrollButtons(False)
-
-
 class ImportLoader(QtCore.QThread):
     # pylint: disable=R0904
-    new_data_ready = QtCore.Signal(object, str)
+    new_data_ready = QtCore.Signal(object, object)
     log_message_signal = QtCore.Signal(str)
 
     def __init__(self, importer_name, parent=None):
@@ -166,18 +95,8 @@ class ImportLoader(QtCore.QThread):
 
     def run(self):
         for file_name in self.file_names[0]:
-            experiment = self.importer.load(str(file_name))
-            self.new_data_ready.emit(experiment, file_name)
-
-
-class SatusBarLogHandler(logging.Handler):
-    def __init__(self, log_signal):
-        logging.Handler.__init__(self)
-        self.log_signal = log_signal
-
-    def emit(self, record):
-        log_message = self.format(record)
-        self.log_signal.emit(log_message)
+            raw_data = self.importer.raw_data_from_file(str(file_name))
+            self.new_data_ready.emit(raw_data, self.importer)
 
 
 class MainWin(QtGui.QMainWindow):
@@ -195,12 +114,13 @@ class MainWin(QtGui.QMainWindow):
         self.view_tab = ViewTab()
         self.tlp_overlay = TLPOverlayFig()
         self.view_tab.addTab(self.tlp_overlay, "TLP")
+        self.core_storm = None
         # pointer to single tlp and pulsepicker figure
         self.tlpfig = None  # single tlp figure
         self.ppfig = None   # single pulse picker figure
         self.leakivsfig = None  # leakage IVs figure
         self.lpfig = None  # leakage IV pulse pick
-        #initialize menu
+
         file_menu = self.menuBar().addMenu("&File")
 
         #Open oef file
@@ -214,15 +134,19 @@ class MainWin(QtGui.QMainWindow):
             if len(file_tuple) > 0:
                 file_name = file_tuple[0]
                 self.core_storm = Storm(str(file_name))
+                self.core_storm_listwdgt.clear()
+                self.experiment_dict = {}
                 for view in self.core_storm:
-                    exper = view.experiment
-                    item = QtGui.QListWidgetItem(exper.exp_name,
+                    droplet = view.experiment
+                    item = QtGui.QListWidgetItem(droplet.exp_name,
                                                  self.core_storm_listwdgt)
-                    item.setToolTip(exper.exp_name)
-                    exper.analysis = RawTLPdataAnalysis(exper.raw_data)
-                    self.experiment_dict[id(item)] = exper
+                    item.setToolTip(droplet.exp_name)
+                    #TODO - Do not launch the analysis here
+                    droplet.analysis = RawTLPdataAnalysis(droplet.raw_data)
+                    self.experiment_dict[id(item)] = droplet
         open_action.triggered.connect(oef_open)
 
+        # Import menu
         import_menu = file_menu.addMenu("&Import")
         for importer_name in plug_dict.keys():
             load_file_action = QtGui.QAction("&%s" % importer_name, self)
@@ -232,12 +156,14 @@ class MainWin(QtGui.QMainWindow):
             loader.new_data_ready.connect(self.add_new_experiment)
             loader.log_message_signal.connect(self.status_bar_show_message)
 
-        self.menuquit = QtGui.QAction("&Close", self,
+        # Quit menu
+        self.menuquit = QtGui.QAction("&Quit", self,
                                       shortcut=QtGui.QKeySequence.Close,
                                       statusTip="Quit the Application",
                                       triggered=self.close)
         file_menu.addAction(self.menuquit)
 
+        # Help menu
         help_menu = self.menuBar().addMenu("&Help")
         self.about_action = QtGui.QAction("About", self)
         self.about_action.triggered.connect(self.show_about)
@@ -286,6 +212,24 @@ class MainWin(QtGui.QMainWindow):
             self.lpfig.show()
 
         def show_reporting():
+            def update_report():
+                experiment.analysis.spot_v = self.report_wind.new_spot
+                experiment.analysis.fail_perc = self.report_wind.new_fail
+                experiment.analysis.seuil = self.report_wind.new_seuil
+                experiment.analysis.update_analysis()
+                self.report_wind.view.view.reload()
+
+            @QtCore.Slot(str)
+            def save_report(save_name):
+                experiment.analysis.save_analysis(save_name)
+                #TODO should rename save_analysis by save
+
+            def update_report_style():
+                experiment.analysis.css = self.report_wind.css_str
+                experiment.analysis.update_style()
+                self.report_wind.view.view.reload()
+                #TODO something is wrong with this naming
+
             self.report_wind = ReportFrame(
                 experiment.analysis.report.report_name)
             self.report_wind.c.value_changed.connect(update_report)
@@ -293,24 +237,6 @@ class MainWin(QtGui.QMainWindow):
             self.report_wind.css_change.value_changed.connect(
                 update_report_style)
             self.report_wind.show()
-
-        def update_report():
-            experiment.analysis.spot_v = self.report_wind.new_spot
-            experiment.analysis.fail_perc = self.report_wind.new_fail
-            experiment.analysis.seuil = self.report_wind.new_seuil
-            experiment.analysis.update_analysis()
-            self.report_wind.view.view.reload()
-
-        @QtCore.Slot(str)
-        def save_report(save_name):
-            experiment.analysis.save_analysis(save_name)
-            #TODO should rename save_analysis by save
-
-        def update_report_style():
-            experiment.analysis.css = self.report_wind.css_str
-            experiment.analysis.update_style()
-            self.report_wind.view.view.reload()
-            #TODO something is wrong with this naming
 
         menu = QtGui.QMenu(self)
         #Set pulse picker in context menu
@@ -364,15 +290,15 @@ class MainWin(QtGui.QMainWindow):
     def status_bar_show_message(self, message):
         self.statusBar().showMessage(message)
 
-    def add_new_experiment(self, experiment, file_name):
-        data_name = os.path.splitext(os.path.basename(str(file_name)))[0]
-        experiment.exp_name = data_name
-        self.core_storm.append(View(experiment))
-        item = QtGui.QListWidgetItem(experiment.exp_name,
+    def add_new_experiment(self, raw_data, importer):
+        droplet = importer.load_in_droplet(raw_data, self.core_storm._h5file)
+        self.core_storm.append(View(droplet))
+        item = QtGui.QListWidgetItem(droplet.exp_name,
                                      self.core_storm_listwdgt)
-        item.setToolTip(data_name)
-        experiment.analysis = RawTLPdataAnalysis(experiment.raw_data)
-        self.experiment_dict[id(item)] = experiment
+        item.setToolTip(droplet.raw_data.original_file_name)
+        # TODO - Do not launch the analysis here
+        #droplet.analysis = RawTLPdataAnalysis(droplet.raw_data)
+        self.experiment_dict[id(item)] = droplet
 
     def core_storm_selection_change(self):
         items = self.core_storm_listwdgt.selectedItems()
