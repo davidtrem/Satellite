@@ -180,11 +180,13 @@ class MainWin(QtGui.QMainWindow):
         core_storm_listwdgt.setSortingEnabled(True)
         core_storm_listwdgt.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         core_storm_listwdgt.customContextMenuRequested.connect(self.list_menu)
-        layout = QtGui.QHBoxLayout()
+        in_layout = QtGui.QHBoxLayout(self)
+        layout = QtGui.QSplitter()
         layout.addWidget(core_storm_listwdgt)
         layout.addWidget(self.view_tab)
+        in_layout.addWidget(layout)
         central_widget = QtGui.QWidget()
-        central_widget.setLayout(layout)
+        central_widget.setLayout(in_layout)
         self.setCentralWidget(central_widget)
         self.core_storm_listwdgt = core_storm_listwdgt
         self.experiment_dict = {}
