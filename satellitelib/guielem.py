@@ -1,7 +1,6 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#Copyright (c) 2012 David Trémouilles
+#Copyright (c) 2010 David Trémouilles
 
 #Permission is hereby granted, free of charge, to any person
 #obtaining a copy of this software and associated documentation
@@ -24,32 +23,25 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
-"""Run Satellite graphical user interface
-on top of ipython.
-"""
+import logging
 
-import sys
 from PyQt4 import QtGui
 
-from .internal_ipkernel import InternalIPKernel
-from .core import MainWin, _init_logging
+
+class ViewTab(QtGui.QTabWidget):
+    # pylint: disable=R0904
+    def __init__(self, parent=None):
+        QtGui.QTabWidget.__init__(self, parent)
+        self.setMovable(True)
+        self.setTabsClosable(False)
+        self.setUsesScrollButtons(False)
 
 
-class IpyMainWin(MainWin, InternalIPKernel):
-    def __init__(self, app):
-        self.init_ipkernel('qt')
-        MainWin.__init__(self, app)
-        self.namespace['storm'] = self.core_storm
+class SatusBarLogHandler(logging.Handler):
+    def __init__(self, log_signal):
+        logging.Handler.__init__(self)
+        self.log_signal = log_signal
 
-
-def main():
-    """Call this function to run Satellite
-    graphical user interface.
-    """
-    _init_logging()
-    app = QtGui.QApplication(sys.argv)
-    mainwin = IpyMainWin(app)
-    mainwin.show()
-    # Very important, IPython-specific step: this gets GUI event loop
-    # integration going, and it replaces calling app.exec_()
-    sys.exit(mainwin.ipkernel.start())
+    def emit(self, record):
+        log_message = self.format(record)
+        self.log_signal.emit(log_message)
