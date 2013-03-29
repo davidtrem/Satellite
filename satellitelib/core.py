@@ -35,6 +35,8 @@ import logging
 from PyQt4 import QtCore
 from PyQt4 import QtGui
 
+import h5py
+
 QtCore.Signal = QtCore.pyqtSignal
 QtCore.Slot = QtCore.pyqtSlot
 QtGui.QFileDialog.getOpenFileNames = \
@@ -123,13 +125,30 @@ class MainWin(QtGui.QMainWindow):
 
         file_menu = self.menuBar().addMenu("&File")
 
+        #New oef file
+        new_file_action = QtGui.QAction("&New", self)
+        file_menu.addAction(new_file_action)
+
+        def oef_new():
+            new_name = QtGui.QFileDialog.getSaveFileName(
+                self, "New oef file", './untitled.oef',
+                "Open ESD Format (*.oef)")
+            if new_name is not None:
+                file_name = str(new_name)
+                new_file = h5py.File(file_name, 'w')
+                new_file.close()
+                self.core_storm = Storm(file_name)
+                self.core_storm_listwdgt.clear()
+                self.experiment_dict = {}
+        new_file_action.triggered.connect(oef_new)
+
         #Open oef file
         open_action = QtGui.QAction("&Open", self)
         file_menu.addAction(open_action)
 
         def oef_open():
             file_tuple = QtGui.QFileDialog.getOpenFileName(
-                None, "Load oef file", '',
+                self, "Load oef file", '',
                 'Open ESD Format (*.oef)',)
             if len(file_tuple) > 0:
                 file_name = file_tuple[0]
