@@ -141,8 +141,6 @@ class MainWin(QtGui.QMainWindow):
                     item = QtGui.QListWidgetItem(droplet.exp_name,
                                                  self.core_storm_listwdgt)
                     item.setToolTip(droplet.exp_name)
-                    #TODO - Do not launch the analysis here
-                    droplet.analysis = RawTLPdataAnalysis(droplet.raw_data)
                     self.experiment_dict[id(item)] = droplet
         open_action.triggered.connect(oef_open)
 
@@ -231,7 +229,8 @@ class MainWin(QtGui.QMainWindow):
                 experiment.analysis.update_style()
                 self.report_wind.view.view.reload()
                 #TODO something is wrong with this naming
-
+            if not hasattr(experiment, "analysis"):
+                experiment.analysis = RawTLPdataAnalysis(experiment.raw_data)
             self.report_wind = ReportFrame(
                 experiment.analysis.report.report_name)
             self.report_wind.c.value_changed.connect(update_report)
@@ -276,11 +275,7 @@ class MainWin(QtGui.QMainWindow):
         #Set report tool in context menu
         report_action = QtGui.QAction("Reporting tool", self)
         report_action.triggered.connect(show_reporting)
-        report_action.setEnabled(experiment.analysis.has_report)
-        report_action.setStatusTip(
-            "Visualize report from selected TLP-data"
-            if experiment.analysis.has_report
-            else "Sorry, No report available")
+        report_action.setStatusTip("Visualize report from selected TLP-data")
 
         menu.addAction(pulse_pick_action)
         menu.addAction(tlp_action)
@@ -298,8 +293,6 @@ class MainWin(QtGui.QMainWindow):
         item = QtGui.QListWidgetItem(droplet.exp_name,
                                      self.core_storm_listwdgt)
         item.setToolTip(droplet.raw_data.original_file_name)
-        # TODO - Do not launch the analysis here
-        #droplet.analysis = RawTLPdataAnalysis(droplet.raw_data)
         self.experiment_dict[id(item)] = droplet
 
     def core_storm_selection_change(self):
