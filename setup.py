@@ -15,5 +15,6 @@ setup(name='Satellite',
       license='MIT',
       platforms=['any'],
       packages=['satellitelib'],
+      package_data={'satellitelib': ['satellite.png']},
       scripts=['satellite.py', ],
       )

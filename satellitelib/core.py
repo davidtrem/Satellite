@@ -30,7 +30,7 @@
 
 import sys
 import os
-import os.path
+from os.path import (realpath, dirname)
 import logging
 from PyQt4 import QtCore
 from PyQt4 import QtGui
@@ -62,10 +62,6 @@ from .matplot import (TLPOverlayFig, PulsesPickFig, TlpFig,
 
 from .guielem import SatusBarLogHandler, ViewTab
 from .reporting import ReportFrame
-
-
-# automaticaly import and initialize qt resources
-import satellitelib.qresource  # pylint: disable=W0611
 
 
 class ImportLoader(QtCore.QThread):
@@ -107,7 +103,8 @@ class MainWin(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.setWindowTitle("Satellite")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(':/satellite.png'),
+        icon.addPixmap(QtGui.QPixmap(dirname(realpath(__file__))
+                                     + os.sep + 'satellite.png'),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
         app.setWindowIcon(icon)
         self.resize(800, 600)

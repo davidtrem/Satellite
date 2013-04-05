@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/" >
-        <file alias="satellite.png" >satellite.png</file>
-    </qresource>
-</RCC>
