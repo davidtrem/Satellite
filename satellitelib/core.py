@@ -139,7 +139,7 @@ class MainWin(QtGui.QMainWindow):
                 new_file.close()
                 self.core_storm = Storm(file_name)
                 self.core_storm_listwdgt.clear()
-                self.experiment_dict = {}
+                self.droplet_dict = {}
         new_file_action.triggered.connect(oef_new)
 
         #Open oef file
@@ -154,13 +154,13 @@ class MainWin(QtGui.QMainWindow):
                 file_name = file_tuple[0]
                 self.core_storm = Storm(str(file_name))
                 self.core_storm_listwdgt.clear()
-                self.experiment_dict = {}
+                self.droplet_dict = {}
                 for view in self.core_storm:
                     droplet = view.experiment
                     item = QtGui.QListWidgetItem(droplet.exp_name,
                                                  self.core_storm_listwdgt)
                     item.setToolTip(droplet.exp_name)
-                    self.experiment_dict[id(item)] = droplet
+                    self.droplet_dict[id(item)] = droplet
         open_action.triggered.connect(oef_open)
 
         # Import menu
@@ -170,7 +170,7 @@ class MainWin(QtGui.QMainWindow):
             import_menu.addAction(load_file_action)
             loader = ImportLoader(importer_name, self)
             load_file_action.triggered.connect(loader)
-            loader.new_data_ready.connect(self.add_new_experiment)
+            loader.new_data_ready.connect(self.add_new_droplet)
             loader.log_message_signal.connect(self.status_bar_show_message)
 
         # Quit menu
@@ -206,52 +206,52 @@ class MainWin(QtGui.QMainWindow):
         central_widget.setLayout(in_layout)
         self.setCentralWidget(central_widget)
         self.core_storm_listwdgt = core_storm_listwdgt
-        self.experiment_dict = {}
+        self.droplet_dict = {}
 
     def list_menu(self, position):
         item = self.core_storm_listwdgt.itemAt(position)
-        experiment = self.experiment_dict[id(item)]
+        droplet = self.droplet_dict[id(item)]
 
         def show_pulse_pick():
-            self.ppfig = PulsesPickFig(experiment.raw_data, item.text())
+            self.ppfig = PulsesPickFig(droplet.raw_data, item.text())
             self.ppfig.show()
 
         def show_tlp():
-            self.tlpfig = TlpFig(experiment.raw_data.tlp_curve, item.text(),
-                                 experiment.raw_data.leak_evol)
+            self.tlpfig = TlpFig(droplet.raw_data.tlp_curve, item.text(),
+                                 droplet.raw_data.leak_evol)
             self.tlpfig.show()
 
         def show_leakage_ivs():
-            self.leakivsfig = LeakageIVsFig(experiment.raw_data.iv_leak,
+            self.leakivsfig = LeakageIVsFig(droplet.raw_data.iv_leak,
                                             item.text())
             self.leakivsfig.show()
 
         def show_leakage_pick():
-            self.lpfig = LeakagesPickFig(experiment.raw_data, item.text())
+            self.lpfig = LeakagesPickFig(droplet.raw_data, item.text())
             self.lpfig.show()
 
         def show_reporting():
             def update_report():
-                experiment.analysis.spot_v = self.report_wind.new_spot
-                experiment.analysis.fail_perc = self.report_wind.new_fail
-                experiment.analysis.seuil = self.report_wind.new_seuil
-                experiment.analysis.update_analysis()
+                droplet.analysis.spot_v = self.report_wind.new_spot
+                droplet.analysis.fail_perc = self.report_wind.new_fail
+                droplet.analysis.seuil = self.report_wind.new_seuil
+                droplet.analysis.update_analysis()
                 self.report_wind.view.view.reload()
 
             @QtCore.Slot(str)
             def save_report(save_name):
-                experiment.analysis.save_analysis(save_name)
+                droplet.analysis.save_analysis(save_name)
                 #TODO should rename save_analysis by save
 
             def update_report_style():
-                experiment.analysis.css = self.report_wind.css_str
-                experiment.analysis.update_style()
+                droplet.analysis.css = self.report_wind.css_str
+                droplet.analysis.update_style()
                 self.report_wind.view.view.reload()
                 #TODO something is wrong with this naming
-            if not hasattr(experiment, "analysis"):
-                experiment.analysis = RawTLPdataAnalysis(experiment.raw_data)
+            if not hasattr(droplet, "analysis"):
+                droplet.analysis = RawTLPdataAnalysis(droplet)
             self.report_wind = ReportFrame(
-                experiment.analysis.report.report_name)
+                droplet.analysis.report.report_name)
             self.report_wind.c.value_changed.connect(update_report)
             self.report_wind.c.save_doc.connect(save_report)
             self.report_wind.css_change.value_changed.connect(
@@ -262,34 +262,34 @@ class MainWin(QtGui.QMainWindow):
         #Set pulse picker in context menu
         pulse_pick_action = QtGui.QAction("Pulse pick tool", self)
         pulse_pick_action.triggered.connect(show_pulse_pick)
-        pulse_pick_action.setEnabled(experiment.raw_data.has_transient_pulses)
+        pulse_pick_action.setEnabled(droplet.raw_data.has_transient_pulses)
         pulse_pick_action.setStatusTip(
             "Visualize transient data from selected TLP-data point(s)"
-            if experiment.raw_data.has_transient_pulses
+            if droplet.raw_data.has_transient_pulses
             else "Sorry, No transient data available")
         #Set tlp with leakage evolution  in context menu
         tlp_action = QtGui.QAction("TLP with leakage", self)
         tlp_action.triggered.connect(show_tlp)
-        tlp_action.setEnabled(experiment.raw_data.has_leakage_evolution)
+        tlp_action.setEnabled(droplet.raw_data.has_leakage_evolution)
         tlp_action.setStatusTip(
             "Visualize TLP with leakage evolution"
-            if experiment.raw_data.has_leakage_evolution
+            if droplet.raw_data.has_leakage_evolution
             else "Sorry, No leakage evolution data available")
         #Set leakage ivs in context menu
         leakage_ivs_action = QtGui.QAction("Leakage IVs", self)
         leakage_ivs_action.triggered.connect(show_leakage_ivs)
-        leakage_ivs_action.setEnabled(experiment.raw_data.has_leakage_ivs)
+        leakage_ivs_action.setEnabled(droplet.raw_data.has_leakage_ivs)
         leakage_ivs_action.setStatusTip(
             "Visualize leakage IVs"
-            if experiment.raw_data.has_leakage_ivs
+            if droplet.raw_data.has_leakage_ivs
             else "Sorry, No leakage IVs available")
         #Set leakage picker in context menu
         leakage_pick_action = QtGui.QAction("Leakage pick tool", self)
         leakage_pick_action.triggered.connect(show_leakage_pick)
-        leakage_pick_action.setEnabled(experiment.raw_data.has_leakage_ivs)
+        leakage_pick_action.setEnabled(droplet.raw_data.has_leakage_ivs)
         leakage_pick_action.setStatusTip(
             "Visualize leakage data from selected TLP-data point(s)"
-            if experiment.raw_data.has_leakage_ivs
+            if droplet.raw_data.has_leakage_ivs
             else "Sorry, No leakage data available")
         #Set report tool in context menu
         report_action = QtGui.QAction("Reporting tool", self)
@@ -306,21 +306,21 @@ class MainWin(QtGui.QMainWindow):
     def status_bar_show_message(self, message):
         self.statusBar().showMessage(message)
 
-    def add_new_experiment(self, raw_data, importer):
+    def add_new_droplet(self, raw_data, importer):
         droplet = importer.load_in_droplet(raw_data, self.core_storm._h5file)
         self.core_storm.append(View(droplet))
         item = QtGui.QListWidgetItem(droplet.exp_name,
                                      self.core_storm_listwdgt)
         item.setToolTip(droplet.raw_data.original_file_name)
-        self.experiment_dict[id(item)] = droplet
+        self.droplet_dict[id(item)] = droplet
 
     def core_storm_selection_change(self):
         items = self.core_storm_listwdgt.selectedItems()
-        experiment_list = []
+        droplet_list = []
         for item in items:
-            experiment_list.append(self.experiment_dict[id(item)])
+            droplet_list.append(self.droplet_dict[id(item)])
         self.core_storm.overlay_raw_tlp(self.tlp_overlay.fig,
-                                        experiment_list=tuple(experiment_list))
+                                        experiment_list=tuple(droplet_list))
 
     def show_about(self):
         about_str = ("Satellite\n\nversion:" + satellitelib.__version__ +
