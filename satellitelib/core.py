@@ -64,10 +64,6 @@ from .guielem import SatusBarLogHandler, ViewTab
 from .reporting import ReportFrame
 
 
-# automaticaly import and initialize qt resources
-import satellitelib.qresource  # pylint: disable=W0611
-
-
 class ImportLoader(QtCore.QThread):
     # pylint: disable=R0904
     new_data_ready = QtCore.Signal(object, object)
