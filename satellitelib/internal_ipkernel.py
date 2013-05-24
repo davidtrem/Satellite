@@ -1,7 +1,7 @@
 import sys
 
 from IPython.lib.kernel import connect_qtconsole
-from IPython.zmq.ipkernel import IPKernelApp
+from IPython.kernel.zmq.kernelapp import IPKernelApp
 
 
 def pylab_kernel(gui):
