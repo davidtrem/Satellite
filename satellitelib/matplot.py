@@ -23,8 +23,8 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from .qt import QtCore
+from .qt import QtGui
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (

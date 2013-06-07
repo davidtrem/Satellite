@@ -25,7 +25,7 @@
 
 import logging
 
-from PyQt4 import QtGui
+from .qt import QtGui
 
 
 class ViewTab(QtGui.QTabWidget):

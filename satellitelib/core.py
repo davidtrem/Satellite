@@ -32,20 +32,11 @@ import sys
 import os
 from os.path import (realpath, dirname)
 import logging
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from .qt import QtCore
+from .qt import QtGui
+from .qt.compat import (getopenfilenames, getsavefilename, getopenfilename)
 
 import h5py
-
-QtCore.Signal = QtCore.pyqtSignal
-QtCore.Slot = QtCore.pyqtSlot
-QtGui.QFileDialog.getOpenFileNames = \
-    QtGui.QFileDialog.getOpenFileNamesAndFilter
-QtGui.QFileDialog.getOpenFileName = \
-    QtGui.QFileDialog.getOpenFileNameAndFilter
-
-
-os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
 
 import matplotlib
 matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
@@ -74,7 +65,7 @@ class ImportLoader(QtCore.QThread):
         self.importer_name = importer_name
         self.importer = plug_dict[self.importer_name]()
         self.file_ext = self.importer.file_ext
-        self.file_names = ""
+        self.file_names = []
         #Setup to display log messages in the status bar
         log = logging.getLogger('thunderstorm')
         log.setLevel(logging.INFO)
@@ -84,15 +75,14 @@ class ImportLoader(QtCore.QThread):
         log.addHandler(channel)
 
     def __call__(self):
-        self.file_names = QtGui.QFileDialog.getOpenFileNames(
+        self.file_names = getopenfilenames(
             None, "Open %s data file" % self.importer_name, '',
-            '%s (%s)' % (self.importer_name, self.file_ext),)
-            #options=QtGui.QFileDialog.DontUseNativeDialog)
+            '%s (%s)' % (self.importer_name, self.file_ext),)[0]
         if len(self.file_names) > 0:
             self.start()  # Acutally call run self.run()
 
     def run(self):
-        for file_name in self.file_names[0]:
+        for file_name in self.file_names:
             raw_data = self.importer.raw_data_from_file(str(file_name))
             self.new_data_ready.emit(raw_data, self.importer)
 
@@ -127,10 +117,10 @@ class MainWin(QtGui.QMainWindow):
         file_menu.addAction(new_file_action)
 
         def oef_new():
-            new_name = QtGui.QFileDialog.getSaveFileName(
+            new_name = getsavefilename(
                 self, "New oef file", './untitled.oef',
-                "Open ESD Format (*.oef)")
-            if new_name is not None:
+                "Open ESD Format (*.oef)")[0]
+            if len(new_name) != 0:
                 file_name = str(new_name)
                 new_file = h5py.File(file_name, 'w')
                 new_file.close()
@@ -144,11 +134,10 @@ class MainWin(QtGui.QMainWindow):
         file_menu.addAction(open_action)
 
         def oef_open():
-            file_tuple = QtGui.QFileDialog.getOpenFileName(
+            file_name = getopenfilename(
                 self, "Load oef file", '',
-                'Open ESD Format (*.oef)',)
-            if len(file_tuple) > 0:
-                file_name = file_tuple[0]
+                'Open ESD Format (*.oef)',)[0]
+            if len(file_name) != 0:
                 self.core_storm = Storm(str(file_name))
                 self.core_storm_listwdgt.clear()
                 self.droplet_dict = {}
