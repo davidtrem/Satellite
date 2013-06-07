@@ -32,21 +32,33 @@ import sys
 import os
 from os.path import (realpath, dirname)
 import logging
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+
+try:
+    from PyQt4 import QtCore
+    from PyQt4 import QtGui
+    pyqt=True
+except ImportError:
+    try:
+        from PySide import QtCore
+        from PySide import QtGui
+        pyqt=False
+    except ImportError:
+        raise ImportError("ERROR: Install either PyQt4 or PySide bindings")
+
 
 import h5py
 
-QtCore.Signal = QtCore.pyqtSignal
-QtCore.Slot = QtCore.pyqtSlot
-QtGui.QFileDialog.getOpenFileNames = \
-    QtGui.QFileDialog.getOpenFileNamesAndFilter
-QtGui.QFileDialog.getOpenFileName = \
-    QtGui.QFileDialog.getOpenFileNameAndFilter
-
-
-os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
-
+if pyqt:
+    QtCore.Signal = QtCore.pyqtSignal
+    QtCore.Slot = QtCore.pyqtSlot
+    QtGui.QFileDialog.getOpenFileNames = \
+        QtGui.QFileDialog.getOpenFileNamesAndFilter
+    QtGui.QFileDialog.getOpenFileName = \
+        QtGui.QFileDialog.getOpenFileNameAndFilter
+    os.environ['QT_API'] = 'pyqt'  # for matplotlib to use pyqt
+else:
+    os.environ['QT_API'] = 'pyside'  # for matplotlib to use pyside
+    
 import matplotlib
 matplotlib.use('Qt4Agg')  # For py2exe not to search other backends
 
@@ -131,7 +143,10 @@ class MainWin(QtGui.QMainWindow):
                 self, "New oef file", './untitled.oef',
                 "Open ESD Format (*.oef)")
             if new_name is not None:
-                file_name = str(new_name)
+                if pyqt:
+                    file_name = str(new_name)
+                else:
+                    file_name = str(new_name[0])
                 new_file = h5py.File(file_name, 'w')
                 new_file.close()
                 self.core_storm = Storm(file_name)

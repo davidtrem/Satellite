@@ -25,7 +25,17 @@
 
 import logging
 
-from PyQt4 import QtGui
+try:
+    from PyQt4 import QtGui
+    pyqt=True
+except ImportError:
+    try:
+        from PySide import QtGui
+        from PySide import QtCore
+        pyqt=False
+    except ImportError:
+        raise ImportError("ERROR: Install either PyQt4 or PySide bindings")
+
 
 
 class ViewTab(QtGui.QTabWidget):
@@ -44,4 +54,5 @@ class SatusBarLogHandler(logging.Handler):
 
     def emit(self, record):
         log_message = self.format(record)
-        self.log_signal.emit(log_message)
+        if pyqt:  #Solve nasty bug with pyside 1.1.2
+            self.log_signal.emit(log_message)

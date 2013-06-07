@@ -29,7 +29,14 @@ on top of ipython.
 """
 
 import sys
-from PyQt4 import QtGui
+try:
+    from PyQt4 import QtCore
+except ImportError:
+    try:
+        from PySide import QtCore
+    except ImportError:
+        raise ImportError("ERROR: Install either PyQt4 or PySide bindings")
+
 
 from .internal_ipkernel import InternalIPKernel
 from .core import MainWin, _init_logging

@@ -23,8 +23,17 @@
 #FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #OTHER DEALINGS IN THE SOFTWARE.
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+
+try:
+    from PyQt4 import QtCore
+    from PyQt4 import QtGui
+except ImportError:
+    try:
+        from PySide import QtCore
+        from PySide import QtGui
+    except ImportError:
+        raise ImportError("ERROR: Install either PyQt4 or PySide bindings")
+
 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import (

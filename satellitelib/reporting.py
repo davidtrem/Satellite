@@ -1,13 +1,26 @@
 # -*- coding: iso-8859-1 -*-
 
 import os
-from PyQt4 import QtGui, QtCore
-import PyQt4.QtWebKit
 
-QtCore.Signal = QtCore.pyqtSignal
-QtCore.Slot = QtCore.pyqtSlot
-QtGui.QFileDialog.getOpenFileNames = \
-    QtGui.QFileDialog.getOpenFileNamesAndFilter
+try:
+    from PyQt4 import QtGui, QtCore
+    from PyQt4.QtCore import QUrl
+    from PyQt4 import QtWebKit
+    pyqt=True
+except ImportError:
+    try:
+        from PySide import QtGui, QtCore
+        from PySide.QtCore import QUrl
+        from PySide import QtWebKit
+        pyqt=False
+    except ImportError:
+        raise ImportError("ERROR: Install either PyQt4 or PySide bindings")
+
+if pyqt:
+    QtCore.Signal = QtCore.pyqtSignal
+    QtCore.Slot = QtCore.pyqtSlot
+    QtGui.QFileDialog.getOpenFileNames = \
+        QtGui.QFileDialog.getOpenFileNamesAndFilter
 
 h = 400
 l = 900
@@ -75,8 +88,8 @@ class ReportWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.dispo = QtGui.QVBoxLayout(self)
 
-        my_url = PyQt4.QtCore.QUrl.fromLocalFile(my_adr)
-        self.view = PyQt4.QtWebKit.QWebView(self)
+        my_url = QUrl.fromLocalFile(my_adr)
+        self.view = QtWebKit.QWebView(self)
         self.view.load(my_url)
         self.dispo.addWidget(self.view)
         self.setLayout(self.dispo)
@@ -179,9 +192,9 @@ class ReportFrame(QtGui.QMainWindow):
     def show_threshold(self):
         baseDir = os.path.dirname(self.report_adr)
         baseDir = os.path.join(baseDir, 'report_analysis')
-        my_url = PyQt4.QtCore.QUrl.fromLocalFile(baseDir + "/derivative.png")
+        my_url = QUrl.fromLocalFile(baseDir + "/derivative.png")
         self.wind = QtGui.QMainWindow()
-        self.myWid = PyQt4.QtWebKit.QWebView(self)
+        self.myWid = QtWebKit.QWebView(self)
         self.myWid.load(my_url)
         self.wind.setCentralWidget(self.myWid)
         self.wind.show()
