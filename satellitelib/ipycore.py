@@ -29,7 +29,7 @@ on top of ipython.
 """
 
 import sys
-from PyQt4 import QtGui
+from .qt import QtGui
 
 from .internal_ipkernel import InternalIPKernel
 from .core import MainWin, _init_logging

@@ -1,14 +1,10 @@
 # -*- coding: iso-8859-1 -*-
 
 import os
-from PyQt4 import QtGui, QtCore
-import PyQt4.QtWebKit
+from .qt import (QtGui, QtCore, QtWebKit)
+from .qt.compat import getopenfilename
 
-QtCore.Signal = QtCore.pyqtSignal
-QtCore.Slot = QtCore.pyqtSlot
-QtGui.QFileDialog.getOpenFileNames = \
-    QtGui.QFileDialog.getOpenFileNamesAndFilter
-
+#FIXME Bad design right below
 h = 400
 l = 900
 
@@ -75,8 +71,8 @@ class ReportWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.dispo = QtGui.QVBoxLayout(self)
 
-        my_url = PyQt4.QtCore.QUrl.fromLocalFile(my_adr)
-        self.view = PyQt4.QtWebKit.QWebView(self)
+        my_url = QtCore.QUrl.fromLocalFile(my_adr)
+        self.view = QtWebKit.QWebView(self)
         self.view.load(my_url)
         self.dispo.addWidget(self.view)
         self.setLayout(self.dispo)
@@ -96,7 +92,7 @@ class ReportFrame(QtGui.QMainWindow):
             self.setWindowIcon(QtGui.Icon("icon.jpg"))
         except:
             pass
-        #TODO Very bad design should not pass on exception
+        #FIXME Very bad design should not pass on exception
         fen = QtGui.QDesktopWidget().screenGeometry()
 
         self.statusBar().showMessage("Report Window")
@@ -179,17 +175,17 @@ class ReportFrame(QtGui.QMainWindow):
     def show_threshold(self):
         baseDir = os.path.dirname(self.report_adr)
         baseDir = os.path.join(baseDir, 'report_analysis')
-        my_url = PyQt4.QtCore.QUrl.fromLocalFile(baseDir + "/derivative.png")
+        my_url = QtCore.QUrl.fromLocalFile(baseDir + "/derivative.png")
         self.wind = QtGui.QMainWindow()
-        self.myWid = PyQt4.QtWebKit.QWebView(self)
+        self.myWid = QtWebKit.QWebView(self)
         self.myWid.load(my_url)
         self.wind.setCentralWidget(self.myWid)
         self.wind.show()
 
     def set_css_file(self):
-        self.css_file = QtGui.QFileDialog.getOpenFileName(
+        self.css_file = getopenfilename(
             None, "Open css file", '',
-            'CSS (*.css)')
-        if len(self.css_file) > 0:
-            self.css_str = self.css_file[0]
+            'CSS (*.css)')[0]
+        if len(self.css_file) != 0:
+            self.css_str = self.css_file
             self.css_change.value_changed.emit()
