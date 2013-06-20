@@ -127,6 +127,8 @@ class MainWin(QtGui.QMainWindow):
                 self.core_storm = Storm(file_name)
                 self.core_storm_listwdgt.clear()
                 self.droplet_dict = {}
+                self.setWindowTitle("Satellite | %s" % file_name)
+                self.import_menu.setEnabled(True)
         new_file_action.triggered.connect(oef_new)
 
         #Open oef file
@@ -147,10 +149,13 @@ class MainWin(QtGui.QMainWindow):
                                                  self.core_storm_listwdgt)
                     item.setToolTip(droplet.exp_name)
                     self.droplet_dict[id(item)] = droplet
+                self.setWindowTitle("Satellite | %s" % file_name)
+                self.import_menu.setEnabled(True)
         open_action.triggered.connect(oef_open)
 
         # Import menu
         import_menu = file_menu.addMenu("&Import")
+        self.import_menu = import_menu
         for importer_name in plug_dict.keys():
             load_file_action = QtGui.QAction("&%s" % importer_name, self)
             import_menu.addAction(load_file_action)
@@ -158,7 +163,7 @@ class MainWin(QtGui.QMainWindow):
             load_file_action.triggered.connect(loader)
             loader.new_data_ready.connect(self.add_new_droplet)
             loader.log_message_signal.connect(self.status_bar_show_message)
-
+        self.import_menu.setEnabled(False)
         # Quit menu
         self.menuquit = QtGui.QAction("&Quit", self,
                                       shortcut=QtGui.QKeySequence.Close,
