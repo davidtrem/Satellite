@@ -1,7 +1,9 @@
+from __future__ import print_function
+
 import sys
 
 from IPython.lib.kernel import connect_qtconsole
-from IPython.zmq.ipkernel import IPKernelApp
+from IPython.kernel.zmq.kernelapp import IPKernelApp
 
 
 def pylab_kernel(gui):
@@ -37,7 +39,7 @@ class InternalIPKernel(object):
 
     def print_namespace(self, evt=None):
         print("\n***Variables in User namespace***")
-        for k, v in self.namespace.iteritems():
+        for k, v in self.namespace.items():
             if k not in self._init_keys and not k.startswith('_'):
                 print('%s -> %r' % (k, v))
         sys.stdout.flush()

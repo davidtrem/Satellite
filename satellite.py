@@ -27,6 +27,8 @@
 """This is the script to launch Satellite
 """
 
+from __future__ import print_function
+
 if __name__ == '__main__':
 
     import argparse
@@ -34,8 +36,8 @@ if __name__ == '__main__':
     from satellitelib.core import main
     try:
         from satellitelib.ipycore import main as ipymain
-    except ImportError, mes:
-        print mes
+    except ImportError as mes:
+        print(mes)
         ipy_support = False
     else:
         ipy_support = True
@@ -49,7 +51,7 @@ if __name__ == '__main__':
         if ipy_support:
             ipymain()
         else:
-            print("You might have to install missing module(s) " +
-                  "to run on top of ipython")
+            print(("You might have to install missing module(s) " +
+                  "to run on top of ipython"))
     else:
         main()
